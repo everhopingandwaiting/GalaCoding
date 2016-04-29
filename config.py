@@ -9,6 +9,7 @@ import os
 root_dir = os.path.abspath(os.path.dirname(__file__))
 
 # 设置默认编码是utf-8
+reload(sys)
 sys.setdefaultencoding('utf-8')
 
 from flask import Flask
