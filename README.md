@@ -13,6 +13,10 @@
 $sudo apt-get install python
 
 ```
+然后需要安装依赖库，你也可以在虚拟环境中安装哦，这样更方便一点。
+```bash
+$sudo pip install -r requirements.txt
+```
 
 然后直接运行manage.py脚本，即可。
 
@@ -205,6 +209,6 @@ $sudo uwsgi -x ****-uwsgi.xml -d ./****.log
 
 ```bash
 
-$pip fueeze > requiremwnts.txt
+$pip freeze > requiremwnts.txt
 
 ```

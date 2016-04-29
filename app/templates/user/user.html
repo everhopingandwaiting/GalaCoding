@@ -16,7 +16,7 @@
         <p>
             {% if user.name %}真实姓名： {{ user.name }}{% endif %}<br/>
             {% if user.location %}
-            来自： <a href="http://maps.google.com/?q={{ user.location }}">{{ user.location }}</a><br/>
+            来自：{{ user.location }}<br/>
             {% endif %}
         </p>
         {% endif %}
