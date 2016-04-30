@@ -1,2 +1,2 @@
-cd ..\..\Users\GalaIO\Desktop\GalaIO\flask-blog
+cd ..\..\Users\GalaIO\Desktop\GalaIO\GalaCoding
 venv\Scripts\activate

@@ -39,7 +39,8 @@ class User(db.Model, UserMixin):
 
     # 更新用户登录时间
     def ping(self):
-        self.last_seen = datetime.utcnow()
+        self.last_seen = self.member_since
+        self.member_since = datetime.utcnow()
         db.session.add(self)
 
     role_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
@@ -142,3 +143,10 @@ class Role(db.Model):
 
     def __repr__(self):
         return '<Role %r>' % self.name
+
+@addModel
+class Post(db.Model):
+    __tablename__ = 'posts'
+    id = db.Column(db.Integer, primary_key=True)
+    body = db.Column(db.Text)
+    timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)

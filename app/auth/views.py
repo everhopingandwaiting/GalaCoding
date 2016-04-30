@@ -19,6 +19,8 @@ def login():
         user = User.query.filter_by(email=form.email.data).first()
         if user is not None and user.verify_password(form.password.data):
             login_user(user, form.remember_me.data)
+            # 每次登陆更新时间
+            user.ping()
             return redirect(request.args.get('next') or url_for('main.index'))
         flash(messages.wrong_username_password)
     return render_template('auth/login.html', form=form)
@@ -59,7 +61,6 @@ def confirm(token):
 @auth.before_app_request
 def before_request():
     if current_user.is_authenticated:
-        current_user.ping()
         if not current_user.confirmed\
             and request.endpoint[:5] != 'auth.'\
             and request.endpoint != 'static':

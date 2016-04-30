@@ -9,21 +9,36 @@
 如果使用这个模板很简单，首先你需要下载源码（这是当然的），然后安装python2.7环境，对于linux用户，python2.7是标配的，windows需要根据版本下载python安装程序就好了。下面给出ubuntu下的python安装。
 
 ```bash
-
 $sudo apt-get install python
-
 ```
 然后需要安装依赖库，你也可以在虚拟环境中安装哦，这样更方便一点。
 ```bash
 $sudo pip install -r requirements.txt
 ```
-
-然后直接运行manage.py脚本，即可。
+所有与环境相关的配置，都在**config.py**文件中，不过你不用修改它，因为这些配置信息都来自于系统的环境变量，你可以设置环境变量来大概修改配置的目的，同时满足了隐私。值得一提是，我们提供了一个脚本来自动的初始化配置信息和加载必要的环境变量，为了保护隐私，我给注释了但是使用者必须填写，具体操作在第八节，我先说明一下需要配置的环境变量。
+```bash
+# 加密密钥
+#export SECRET_KE=
+# 服务器绑定二级域名 端口 和过滤IP地址设置
+#export WEBSERVER_HOST=
+#export WEBSERVER_PORT=
+export WEBSERVER_ACCESSIP=127.0.0.1
+# 注册发送邮件服务器
+#export MAIL_SERVE=
+#export MAIL_SERVERPORT=
+#export MAIL_USERNAME=
+#export MAIL_PASSWORD=
+#export MAIL_ADDR=
+# Database地址
+#export DEV_DATABASE_URL=
+#export TEST_DATABASE_URL=
+#export DATABASE_URL=
+```
+设置好后，可以直接运行**run.sh**进行测试（第八节），当然你也可以手动的把环境变量输入（这是必须的），然后直接运行manage.py脚本进行测试。
+>最好的一个选择是，配置好run.sh下的环境变量，使用sudo执行，然后再进行下列命令，因为这时候系统已经保存有这些环境变量了。
 
 ```bash
-
 $python manage.py runserver
-
 ```
 
 这时候就可以完美访问你的服务器了，但是需要注意的是这时只能本机访问，如果需要外部计算机访问，可以添加参数，指定所有IP可访问，即0.0.0.0，同时可指定绑定的端口号。
@@ -63,8 +78,6 @@ $python manage.py
 
 $python manage.py shell
 
-
-
 >>> app
 
 <Flask 'app'>
@@ -86,9 +99,7 @@ $python manage.py shell
 数据库迁移已经建立了一个基本版本，如果需要更新数据库模型，如果移动到新的部署环境，可以直接运行下面命令来同步数据库。
 
 ```bash
-
 $python manage.py db upgrade
-
 ```
 
 ####四、修改配置文件

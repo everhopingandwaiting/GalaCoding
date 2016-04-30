@@ -6,6 +6,9 @@
 <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
 <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
 {{ moment.include_moment() }}
+<script type="application/javascript">
+    moment.locale('zh-cn');
+</script>
 {% endblock %}
 
 {% block title %}GalaCoding{% endblock %}

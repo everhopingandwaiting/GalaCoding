@@ -1,20 +1,20 @@
 #! /bin/bash
-
-#SECRET_KEY=
+# 加密密钥
+#export SECRET_KE=
 # 服务器绑定二级域名 端口 和过滤IP地址设置
-#WEBSERVER_HOST=
-WEBSERVER_PORT=8080
-WEBSERVER_ACCESSIP=127.0.0.1
+#export WEBSERVER_HOST=
+#export WEBSERVER_PORT=
+export WEBSERVER_ACCESSIP=127.0.0.1
 # 注册发送邮件服务器
-#MAIL_SERVER=
-#MAIL_SERVERPORT=
-#MAIL_USERNAME=
-#MAIL_PASSWORD=
-#MAIL_ADDR=
-# data url
-#DEV_DATABASE_URL=
-#TEST_DATABASE_URL=
-#DATABASE_URL=
+#export MAIL_SERVE=
+#export MAIL_SERVERPORT=
+#export MAIL_USERNAME=
+#export MAIL_PASSWORD=
+#export MAIL_ADDR=
+# Database地址
+#export DEV_DATABASE_URL=
+#export TEST_DATABASE_URL=
+#export DATABASE_URL=
 
 python manage.py config
 if [ -f "*-nginx.conf" ]; then
