@@ -36,6 +36,8 @@ class User(db.Model, UserMixin):
     about_me = db.Column(db.Text())
     member_since = db.Column(db.DateTime(), default=datetime.utcnow)
     last_seen = db.Column(db.DateTime(), default=datetime.utcnow)
+    # 文章的反向引用
+    posts = db.relationship('Post', backref='author', lazy='dynamic')
 
     # 更新用户登录时间
     def ping(self):
@@ -150,3 +152,4 @@ class Post(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     body = db.Column(db.Text)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
+    author_id = db.Column(db.Integer, db.ForeignKey('users.id'))

@@ -1,5 +1,5 @@
 <uwsgi>
-    <pythonpath>C:\Users\GalaIO\Desktop\GalaIO\flask-blog</pythonpath>
+    <pythonpath>C:\Users\GalaIO\Desktop\GalaIO\GalaCoding</pythonpath>
     <module>manage</module>
     <callable>app</callable>
     <socket>127.0.0.1:8080</socket>

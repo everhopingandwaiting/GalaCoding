@@ -27,7 +27,7 @@ class EditProfileAdminForm(Form):
     location = StringField('居住地', validators=[Length(0, 64, '长度必须为1-64。')])
     about_me = TextAreaField('关于我')
     # 选择角色
-    role = SelectField('Role', coerce=int)
+    role = SelectField('角色', coerce=int)
     submit = SubmitField('修改')
 
     def __init__(self, user, *args, **kwargs):
