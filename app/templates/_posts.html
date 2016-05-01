@@ -2,14 +2,14 @@
         {% for post in posts %}
         <li class="post">
             <div class="profile-thumbnail">
-                <a href="{{ url_for('user.user_profile', username=post.author.username) }}">
+                <a href="{{ url_for('user.profile', username=post.author.username) }}">
                     <img class="img-rounded profile-thumbnail" width="40px" height="40px" src="{{ post.author.avatar_url_auto(size=40) }}">
                 </a>
             </div>
             <div class="post-content">
                 <div class="post-date">{{ moment(post.timestamp).fromNow() }}</div>
                 <div class="post-author">
-                    <a href="{{ url_for('user.user_profile', username=post.author.username) }}">
+                    <a href="{{ url_for('user.profile', username=post.author.username) }}">
                     {{ post.author.username }}
                     </a>
                 </div>
@@ -27,6 +27,9 @@
                     {% if current_user == post.author or current_user.is_administrator() %}
                     <a href="{{ url_for('main.edit', id=post.id) }}">
                     <span class="label label-primary">编辑</span>
+                    </a>
+                    <a href="{{ url_for('main.delete', id=post.id) }}">
+                    <span class="label label-danger">删除</span>
                     </a>
                     {% endif %}
                 </div>

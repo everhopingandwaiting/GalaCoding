@@ -8,7 +8,7 @@
     <h1>{{ user.username }}</h1>
     <p>
         {% if current_user.is_authenticated %}
-        <a href="{{ url_for('user.user_edit') }}">编辑</a>
+        <a href="{{ url_for('user.edit') }}">编辑</a>
         {% endif %}
     </p>
     <div>
@@ -32,9 +32,7 @@
                 登录时间： {{ moment(user.member_since).format('LLLL') }}<br/>
                 上次登录时间： {{ moment(user.last_seen).fromNow() }}
             </p>
-            <p>
-                博客数量：{{ user.posts.count() }}
-            </p>
+
             <p>
                 {% if current_user.can(Permission.FOLLOW) and user != current_user %}
                     {% if not current_user.is_following(user) %}
@@ -46,10 +44,13 @@
                     {% endif %}
                 {% endif %}
                 <a href="#{# {{ url_for('user.followers', username=user.username) }} #}">
-                    被关注: <span class="badge">{{ user.followers.count() }}</span>
+                    博客数量： <span class="badge">{{ user.posts.count() }}</span>
+                </a>|
+                <a href="#{# {{ url_for('user.followers', username=user.username) }} #}">
+                    被关注：<span class="badge">{{ user.followers.count() }}</span>
                 </a>
                 <a href="#{# {{ url_for('user.followed_by', username=user.username) }} #}">
-                    关注人数: <span class="badge">{{ user.followed.count() }}</span>
+                    关注人数：<span class="badge">{{ user.followed.count() }}</span>
                 </a>
                 {% if current_user.is_authenticated and user != current_user and user.is_following(current_user) %}
                 | <span class="label label-default">该用户关注了你</span>
@@ -58,7 +59,7 @@
         </div>
         {% if current_user.is_administrator() %}
         <p>
-            <a class="btn bg-danger" href="{{ url_for('user.edit_profile_admin', id=user.id) }}">编辑此用户</a>
+            <a class="btn bg-danger" href="{{ url_for('user.edit_admin', id=user.id) }}">编辑此用户</a>
         </p>
         {% endif %}
     </div>

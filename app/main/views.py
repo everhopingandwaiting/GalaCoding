@@ -21,7 +21,7 @@ def index():
     # 加载数据库所有文章
     page = request.args.get('page', 1, type=int)
     pagination = Post.query.order_by(Post.timestamp.desc()).paginate(
-        page, per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],
+        page, per_page=current_app.config['POSTS_PER_PAGE'],
         error_out=False)
     posts = pagination.items
     return render_template('index.html', form=form, posts=posts, pagination=pagination)
@@ -48,3 +48,16 @@ def edit(id):
         return redirect(url_for('post', id=post.id))
     form.body.data = post.body
     return render_template('edit_post.html', form=form)
+
+
+# 编辑文章
+@main.route('/delete/<int:id>', methods=['GET'])
+@login_required
+def delete(id):
+    post = Post.query.get_or_404(id)
+    if current_user != post.author and \
+        not current_user.can(Permission.ADMINISTER):
+        abort(403)
+    u = post.author
+    db.session.delete(post)
+    return redirect(url_for('user.profile', username=u.username))

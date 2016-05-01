@@ -37,7 +37,8 @@ class Config:
     MAIL_SUBJECT_PREFIX = '[GalaCoding]'
     MAIL_SENDER = 'GalaCoding Admin <%s>' % os.environ.get('MAIL_ADDR')
 
-    FLASKY_POSTS_PER_PAGE = 30
+    POSTS_PER_PAGE = 30
+    USERS_PER_PAGE = 30
 
     # init_app 可以在创建flask应用时，获取到一些app上下文，同时自定义设置参数，一般就是更新app.config吧
     @staticmethod

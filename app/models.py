@@ -161,8 +161,9 @@ class Permission:
     FOLLOW = 0x01
     COMMENT = 0x02
     WRITE_ARTICLES = 0x04
-    MODERATE_COMMENTS = 0x08
-    ADMINISTER = 0x80
+    MODERATE_ARTICLES = 0x08
+    MODERATE_USERS = 0x10
+    ADMINISTER = 0xff
 
 # 角色数据库，用于分配权限
 @addModel
@@ -178,7 +179,7 @@ class Role(db.Model):
     def insert_roles():
         roles = {
             'User': (Permission.FOLLOW | Permission.COMMENT | Permission.WRITE_ARTICLES, True),
-            'Moderator': (Permission.FOLLOW | Permission.COMMENT | Permission.WRITE_ARTICLES | Permission.MODERATE_COMMENTS, False),
+            'Moderator': (Permission.FOLLOW | Permission.COMMENT | Permission.WRITE_ARTICLES | Permission.MODERATE_ARTICLES, False),
             'Administrator': (0xff, False)
         }
         for role_name in roles:
