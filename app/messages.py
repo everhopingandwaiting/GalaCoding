@@ -33,3 +33,15 @@ user_not_found = '该用户未找到！'
 update_profile_ok = '您的资料已更新！'
 
 post_update_ok = '博客内容已更新！'
+
+follow_youself_err = '你不能关注自己！'
+
+follow_again_err = '你已经关注过此人！'
+
+follow_ok = '关注成功！'
+
+unfollow_youself_err = '你不能取消关注自己！'
+
+unfollow_again_err = '你已经取消关注过此人！'
+
+unfollow_ok = '取消关注成功！'

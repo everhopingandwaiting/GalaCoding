@@ -4,12 +4,12 @@ index route.
 '''
 from flask import render_template, redirect, url_for, abort, flash, request, current_app
 from . import user
-from ..models import User, Role, Post
+from ..models import User, Role, Post, Permission
 from flask.ext.login import login_required, current_user
 from .forms import EditProfileForm, EditProfileAdminForm
 from .. import db
 from .. import messages
-from ..decorators import admin_required
+from ..decorators import admin_required, permission_required
 
 # 定义路由函数
 @user.route('/<username>', methods=['GET', 'POST'])
@@ -18,7 +18,7 @@ def user_profile(username):
     if tmp_user is None:
         abort(404)
     page = request.args.get('page', 1, type=int)
-    pagination = Post.query.order_by(Post.timestamp.desc()).paginate(
+    pagination = tmp_user.posts.order_by(Post.timestamp.desc()).paginate(
         page, per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],
         error_out=False)
     posts = pagination.items
@@ -68,3 +68,41 @@ def edit_profile_admin(id):
     form.location.data = user.location
     form.about_me.data = user.about_me
     return render_template('user/edit.html', form=form, user=user)
+
+@user.route('/follow/<username>')
+@login_required
+@permission_required(Permission.FOLLOW)
+def follow(username):
+    if current_user.username == username:
+        flash(messages.follow_youself_err)
+        return redirect(url_for('user.user_profile', username=username))
+    user = User.query.filter_by(username=username).first()
+    if user is None:
+        flash(messages.user_not_found)
+        return redirect('main.index')
+    if current_user.is_following(user):
+        flash(messages.follow_again_err)
+        return redirect(url_for('user.user_profile', username=username))
+    # 过滤完成，允许关注
+    current_user.follow(user)
+    flash(messages.follow_ok)
+    return redirect(url_for('user.user_profile', username=username))
+
+@user.route('/unfollow/<username>')
+@login_required
+@permission_required(Permission.FOLLOW)
+def unfollow(username):
+    if current_user.username == username:
+        flash(messages.unfollow_youself_err)
+        return redirect(url_for('user.user_profile', username=username))
+    user = User.query.filter_by(username=username).first()
+    if user is None:
+        flash(messages.user_not_found)
+        return redirect('main.index')
+    if not current_user.is_following(user):
+        flash(messages.unfollow_again_err)
+        return redirect(url_for('user.user_profile', username=username))
+    # 过滤完成，允许取消关注
+    current_user.unfollow(user)
+    flash(messages.unfollow_ok)
+    return redirect(url_for('user.user_profile', username=username))

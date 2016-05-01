@@ -5,7 +5,7 @@ index route.
 from flask import request, render_template, redirect, url_for, flash
 from . import auth
 from forms import LoginForm, RegistrationForm, ResetPassword, ForgetPassword, ResetPasswordByConfirm
-from ..models import User
+from ..models import User, Role
 from flask.ext.login import login_user, login_required, logout_user, current_user
 from .. import messages
 from .. import  db
@@ -56,6 +56,9 @@ def confirm(token):
         return redirect(url_for('main.index'))
     if current_user.confirm(token):
         flash(messages.confirm_ok)
+        # 确认后 给用户添加权限
+        current_user.role = Role.query.filter_by(name='User').first()
+        db.session.add(current_user)
     else:
         flash(messages.confirm_invalid)
     return redirect(url_for('main.index'))
