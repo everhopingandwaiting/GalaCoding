@@ -31,3 +31,5 @@ reset_password_err = '原密码输入错误!'
 user_not_found = '该用户未找到！'
 
 update_profile_ok = '您的资料已更新！'
+
+post_update_ok = '博客内容已更新！'

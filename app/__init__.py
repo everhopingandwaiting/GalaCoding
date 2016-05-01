@@ -14,6 +14,7 @@ from flask.ext.bootstrap import Bootstrap
 from flask.ext.login import LoginManager
 from flask.ext.mail import Mail
 from flask.ext.moment import Moment
+from flask.ext.pagedown import PageDown
 
 # 定义了数据库实例，在随后初始化，传入app上下文
 db = SQLAlchemy()
@@ -29,6 +30,8 @@ login_manager.login_view = 'auth.login'
 mail = Mail()
 # 初始化本地化时间类
 moment = Moment()
+# 初始化Pagedown对象
+pagedown = PageDown()
 
 # 蓝图表，可以动态加载进去
 route_list = []
@@ -52,6 +55,8 @@ def create_app(config_name):
     mail.init_app(app)
     # 初始化moment
     moment.init_app(app)
+    # 初始化pagedown
+    pagedown.init_app(app)
     # 附加路由和自定义的错误页面
     app_dir = os.path.join(root_dir, 'app')
     # 逐个执行各个路由映射脚本，添加到route_list中

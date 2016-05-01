@@ -10,6 +10,8 @@ from flask.ext.login import UserMixin, AnonymousUserMixin
 from . import login_manager
 from datetime import datetime
 import hashlib
+from markdown import markdown
+import bleach
 
 # 使用flask-login模块自动加载用户信息
 @login_manager.user_loader
@@ -170,3 +172,18 @@ class Post(db.Model):
     body = db.Column(db.Text)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
     author_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    # 富文本
+    body_html = db.Column(db.Text)
+
+    # 富文本转化
+    @staticmethod
+    def on_chaged_body(target, value, oldvalue, initiator):
+        allowed_tags = ['a', 'abbr', 'acronym', 'b', 'blockquote', 'code',
+                        'em', 'i', 'li', 'ol', 'pre', 'strong', 'ul',
+                        'h1', 'h2', 'h3', 'p']
+        target.body_html = bleach.linkify(bleach.clean(
+                        markdown(value, output_format='html'),
+                        tags=allowed_tags, strip=True))
+
+# 绑定SQLAlchemy的事件监听
+db.event.listen(Post.body, 'set', Post.on_chaged_body)
