@@ -2,7 +2,7 @@
 '''
 index route.
 '''
-from flask import render_template, redirect, url_for, abort, flash
+from flask import render_template, redirect, url_for, abort, flash, request, current_app
 from . import user
 from ..models import User, Role, Post
 from flask.ext.login import login_required, current_user
@@ -17,8 +17,12 @@ def user_profile(username):
     tmp_user = User.query.filter_by(username=username).first()
     if tmp_user is None:
         abort(404)
-    posts = tmp_user.posts.order_by(Post.timestamp.desc()).all()
-    return render_template('user/user.html', user=tmp_user, posts=posts)
+    page = request.args.get('page', 1, type=int)
+    pagination = Post.query.order_by(Post.timestamp.desc()).paginate(
+        page, per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],
+        error_out=False)
+    posts = pagination.items
+    return render_template('user/user.html', user=tmp_user, posts=posts, pagination=pagination)
 
 # 用户编辑资料页
 @user.route('/edit', methods=['GET', 'POST'])

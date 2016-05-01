@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% import "bootstrap/wtf.html" as wtf %}
+{% import "_macros.html" as macros %}
 
 {% block title %}GalaCoding{% endblock %}
 
@@ -19,6 +20,9 @@
     {{ wtf.quick_form(form) }}
     {% endif %}
     <h2>博客动态：</h2>
-    {% include '_posts.html' %}'
+    {% include '_posts.html' %}
+    <div class="pagination">
+        {{ macros.pagination_widget(pagination, 'main.index') }}
+    </div>
 </div>
 {% endblock %}
