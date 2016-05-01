@@ -11,30 +11,36 @@
         {% endif %}
     </p>
     <div>
-        <img class="img-rounded profile-thumbnail" src="{{ url_for('static', filename='avatar/male0.png') }}">
-        {% if user.name or user.location %}
-        <p>
-            {% if user.name %}真实姓名： {{ user.name }}{% endif %}<br/>
-            {% if user.location %}
-            来自：{{ user.location }}<br/>
+        <img class="img-rounded profile-thumbnail" width="256px" height="256px" src="{{ user.avatar_url_auto(size=256) }}">
+        <div class="profile-header">
+            {% if user.name or user.location %}
+            <p>
+                {% if user.name %}真实姓名： {{ user.name }}{% endif %}<br/>
+                {% if user.location %}
+                来自：{{ user.location }}<br/>
+                {% endif %}
+            </p>
             {% endif %}
-        </p>
-        {% endif %}
+            {% if current_user.is_administrator() %}
+            <p>
+                管理员邮箱：<a href="mailto:{{ user.email }}">{{ user.email }}</a>
+            </p>
+            {% endif %}
+            {% if user.about_me %}<p>关于我：{{ user.about_me }}</p>{% endif %}<br/>
+            <p>
+                登录时间： {{ moment(user.member_since).format('LLLL') }}<br/>
+                上次登录时间： {{ moment(user.last_seen).fromNow() }}
+            </p>
+        </div>
         {% if current_user.is_administrator() %}
         <p>
-            管理员邮箱：<a href="mailto:{{ user.email }}">{{ user.email }}</a>
+            <a class="btn bg-danger" href="{{ url_for('user.edit_profile_admin', id=user.id) }}">编辑此用户</a>
         </p>
         {% endif %}
-        {% if user.about_me %}<p>关于我：{{ user.about_me }}</p>{% endif %}<br/>
-        <p>
-            登录时间： {{ moment(user.member_since).format('LLLL') }}<br/>
-            上次登录时间： {{ moment(user.last_seen).fromNow() }}
-        </p>
     </div>
-    {% if current_user.is_administrator() %}
-    <p>
-        <a class="btn bg-danger" href="{{ url_for('user.edit_profile_admin', id=user.id) }}">编辑此用户</a>
-    </p>
-    {% endif %}
+</div>
+<div>
+    <h3>博客动态：</h3>
+    {% include '_posts.html' %}'
 </div>
 {% endblock %}

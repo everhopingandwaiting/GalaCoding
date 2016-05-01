@@ -8,9 +8,9 @@
     <h1>
         你好,
         {% if current_user.is_authenticated %}
-            {{ current_user.username }}
+            {{ current_user.username }}!
         {% else %}
-            陌生人
+            陌生人!
         {% endif %}
     </h1>
 </div>
@@ -18,23 +18,7 @@
     {% if current_user.can(Permission.WRITE_ARTICLES) %}
     {{ wtf.quick_form(form) }}
     {% endif %}
-    <ul class="posts">
-        {% for post in posts %}
-        <li class="post">
-            <div class="profile-thumbnail">
-                <a href="{{ url_for('user.user_profile', username=post.author.username) }}">
-                    <img class="img-rounded profile-thumbnail" src="{{ url_for('static', filename='avatar/male0.png') }}">
-                </a>
-            </div>
-            <div class="post-date">{{ moment(post.timestamp).fromNow() }}</div>
-            <div class="post-author">
-                <a href="{{ url_for('user.user_profile', username=post.author.username) }}">
-                {{ post.author.username }}
-                </a>
-            </div>
-            <div class="post-body">{{ post.body }}</div>
-        </li>
-        {% endfor %}
-    </ul>
+    <h2>博客动态：</h2>
+    {% include '_posts.html' %}'
 </div>
 {% endblock %}

@@ -4,7 +4,7 @@ index route.
 '''
 from flask import render_template, redirect, url_for, abort, flash
 from . import user
-from ..models import User, Role
+from ..models import User, Role, Post
 from flask.ext.login import login_required, current_user
 from .forms import EditProfileForm, EditProfileAdminForm
 from .. import db
@@ -17,7 +17,8 @@ def user_profile(username):
     tmp_user = User.query.filter_by(username=username).first()
     if tmp_user is None:
         abort(404)
-    return render_template('user/user.html', user=tmp_user)
+    posts = tmp_user.posts.order_by(Post.timestamp.desc()).all()
+    return render_template('user/user.html', user=tmp_user, posts=posts)
 
 # 用户编辑资料页
 @user.route('/edit', methods=['GET', 'POST'])

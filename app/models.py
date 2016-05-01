@@ -9,6 +9,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask.ext.login import UserMixin, AnonymousUserMixin
 from . import login_manager
 from datetime import datetime
+import hashlib
 
 # 使用flask-login模块自动加载用户信息
 @login_manager.user_loader
@@ -29,6 +30,7 @@ def addModel(model):
 class User(db.Model, UserMixin):
     __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
+    # 每个用户的email是唯一的，只能通过数据库删，否则终身不变
     email = db.Column(db.String(64), unique=True, index=True)
     username = db.Column(db.String(64), unique=True, index=True)
     name = db.Column(db.String(64))
@@ -38,7 +40,8 @@ class User(db.Model, UserMixin):
     last_seen = db.Column(db.DateTime(), default=datetime.utcnow)
     # 文章的反向引用
     posts = db.relationship('Post', backref='author', lazy='dynamic')
-
+    # 用户图像，存储用户头像的url，而非二进制格式
+    avatar_url = db.Column(db.String(100), unique=True, index=True)
     # 更新用户登录时间
     def ping(self):
         self.last_seen = self.member_since
@@ -94,6 +97,20 @@ class User(db.Model, UserMixin):
 
     def is_administrator(self):
         return self.can(Permission.ADMINISTER)
+
+    # 生成avatar的hashurl，使用http://www.gravatar.com/avatar的生成头像的服务
+    # 计算md5是计算密集型，会占用大量cpu，一般初始化新用户时，会执行一次
+    def generate_avatar_url(self):
+        # self.avatar_url = 'https://www.gravatar.com/avatar/'+hashlib.md5(self.email.encode('utf-8')).hexdigest()
+        total = 0
+        for i in range(1, len(self.email)):
+            total = total + ord(self.email[i])
+        self.avatar_url = '/static/avatar/avatar{0}.png'.format(total%200)
+
+    # 生成不同尺寸的url，这时经常被调用
+    def avatar_url_auto(self, size=100, default='idention', rating='g'):
+        # return '{0}?s={1}&d={2}&r={3}'.format(self.avatar_url, size, default, rating)
+        return self.avatar_url
 
     def __repr__(self):
         return '<User %r>' % self.username

@@ -39,6 +39,8 @@ def register():
         user = User(email=form.email.data,
                             username = form.username.data,
                             password = form.password.data)
+        # 新注册需要更新用户的 头像链接
+        user.generate_avatar_url()
         db.session.add(user)
         db.session.commit()
         token = user.generate_confirmation_token()

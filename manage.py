@@ -8,7 +8,7 @@ from app import create_app, db
 from app.models import tables
 from flask.ext.script import Manager, Shell
 from flask.ext.migrate import Migrate, MigrateCommand
-from app.models import Role
+from app.models import Role, User
 
 # 动态创建app实例，然后继续使用
 app = create_app(os.getenv('FLASK_CONFIG') or 'default')
@@ -51,6 +51,12 @@ def config():
     os.system('python manage.py db upgrade')
     # 执行角色更新
     Role.insert_roles()
+    # 刷新用户信息，主要是一些自动填写的信息，比如头像等
+    users = User.query.all()
+    for user in users:
+        user.generate_avatar_url()
+        db.session.add(user)
+    db.session.commit()
     # 自动更新需求库
     os.system('pip freeze > requirements.txt')
     nginx_conf =\
