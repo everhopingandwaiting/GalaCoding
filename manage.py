@@ -35,6 +35,12 @@ def test():
     tests = unittest.TestLoader().discover('tests')
     unittest.TextTestRunner(verbosity=2).run(tests)
 
+@manager.command
+def update():
+    # 自动更新需求库
+    print 'output requirements file.....'
+    os.system('pip freeze > requirements.txt')
+
 # 添加自动生成生产环境配置命令
 @manager.command
 def config():
@@ -50,15 +56,18 @@ def config():
     os.system('python manage.py db migrate')
     os.system('python manage.py db upgrade')
     # 执行角色更新
+    print 'insert Roles.....'
     Role.insert_roles()
     # 刷新用户信息，主要是一些自动填写的信息，比如头像等
     users = User.query.all()
+    print 'insert users.....'
     for user in users:
         user.generate_avatar_url()
         db.session.add(user)
     db.session.commit()
     # 自动更新需求库
-    os.system('pip freeze > requirements.txt')
+    print 'install require libs.....'
+    os.system('pip install -r requirements.txt')
     nginx_conf =\
 '''server {
     listen 80;
@@ -87,11 +96,13 @@ def config():
     <buffer-size>16384</buffer-size>
     <pidfile>pids/uwsgi.pid</pidfile>
 </uwsgi>'''% (root_dir, Config.ACCESSIPS, Config.PORT, 4)
+    print 'output nginx config file.....'
     file = open(Config.HOST+'-nginx.conf', 'w')
     file.truncate()
     file.write(nginx_conf)
     file.close()
 
+    print 'output uwsgi config file.....'
     file = open(Config.HOST+'-uwsgi.xml', 'w')
     file.truncate()
     file.write(uwsgi_conf)
