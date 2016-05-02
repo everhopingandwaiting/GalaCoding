@@ -34,6 +34,14 @@ class Follow(db.Model):
     followed_id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
 
+# 建立用户和关注着博客的多对多关系模型
+@addModel
+class Concern_posts(db.Model):
+    __tablename__ = 'concern_posts'
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True)
+    post_id = db.Column(db.Integer, db.ForeignKey('posts.id'), primary_key=True)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+
 # USer model
 @addModel
 class User(db.Model, UserMixin):
@@ -141,6 +149,36 @@ class User(db.Model, UserMixin):
     def is_followed_by(self, user):
         return self.followers.filter_by(
             follower_id=user.id).first() is not None
+    @property
+    def recommend_posts(self):
+        return Post.query.join(Follow, Follow.followed_id == Post.author_id).filter(Follow.follower_id == self.id)
+
+    #定义关注着文章的反向引用
+    concerns = db.relationship('Concern_posts', foreign_keys=[Concern_posts.user_id], backref=db.backref('user', lazy='joined'),
+                    lazy='dynamic', cascade='all, delete-orphan')
+
+    @property
+    def concern_posts(self):
+        return Post.query.join(Concern_posts, Concern_posts.post_id==Post.id)
+
+    def concern(self, post):
+        if not self.is_concerning(post):
+            c = Concern_posts(user=self, post=post)
+            db.session.add(c)
+            return True
+        else:
+            return False
+    def unconcern(self, post):
+        c = self.concerns.filter_by(post_id=post.id).first()
+        if c:
+            db.session.delete(c)
+            return True
+        else:
+            return False
+
+    def is_concerning(self, post):
+        return self.concerns.filter_by(post_id=post.id).first() is not None
+
 
     def __repr__(self):
         return '<User %r>' % self.username
@@ -213,6 +251,13 @@ class Post(db.Model):
         target.body_html = bleach.linkify(bleach.clean(
                         markdown(value, output_format='html'),
                         tags=allowed_tags, strip=True))
+
+    #定义关注着文章的反向引用
+    concern_users = db.relationship('Concern_posts', foreign_keys=[Concern_posts.post_id], backref=db.backref('post', lazy='joined'),
+                    lazy='dynamic', cascade='all, delete-orphan')
+
+    def is_concerned_by(self, user):
+        return self.concern_users.filter_by(user_id=user.id).first() is not None
 
 # 绑定SQLAlchemy的事件监听
 db.event.listen(Post.body, 'set', Post.on_chaged_body)

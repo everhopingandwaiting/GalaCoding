@@ -3,5 +3,16 @@
 {% block title %}GalaCoding - 博客文章{% endblock %}
 
 {% block page_content %}
+    {% if current_user.is_authenticated %}
+        {% if current_user.is_concerning(posts[0]) %}
+        <a href="{{ url_for('main.concern', id=posts[0].id, action='unconcern') }}">
+         <span class="btn btn-danger">取消关注</span>
+        </a>
+        {% else %}
+        <a href="{{ url_for('main.concern', id=posts[0].id, action='concern') }}">
+        <span class="btn btn-primary">关注</span>
+        </a>
+        {% endif %}
+    {% endif %}
 {% include '_posts.html' %}
 {% endblock %}

@@ -65,9 +65,6 @@ def config():
         user.generate_avatar_url()
         db.session.add(user)
     db.session.commit()
-    # 自动更新需求库
-    print 'install require libs.....'
-    os.system('pip install -r requirements.txt')
     nginx_conf =\
 '''server {
     listen 80;

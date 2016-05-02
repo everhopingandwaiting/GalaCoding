@@ -40,7 +40,7 @@
                         class="btn btn-primary">关注</a>
                     {% else %}
                         <a href="{{ url_for('user.unfollow', username=user.username) }}"
-                        class="btn btn-default">取消</a>
+                        class="btn btn-danger">取消</a>
                     {% endif %}
                 {% endif %}
                 <a href="#{# {{ url_for('user.followers', username=user.username) }} #}">

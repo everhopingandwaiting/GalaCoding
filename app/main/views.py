@@ -5,7 +5,7 @@ index route.
 from flask import render_template, redirect, url_for, request, current_app, abort, flash
 from . import main
 from forms import PostForm
-from ..models import Permission, Post
+from ..models import Permission, Post, Concern_posts
 from flask.ext.login import current_user, login_required
 from .. import db
 from .. import messages
@@ -20,11 +20,21 @@ def index():
         return redirect(url_for('main.index'))
     # 加载数据库所有文章
     page = request.args.get('page', 1, type=int)
-    pagination = Post.query.order_by(Post.timestamp.desc()).paginate(
-        page, per_page=current_app.config['POSTS_PER_PAGE'],
-        error_out=False)
+    shows = request.args.get('shows')
+    if shows is not None and shows == 'recommend':
+        pagination = current_user.recommend_posts.order_by(Post.timestamp.desc()).paginate(
+            page, per_page=current_app.config['POSTS_PER_PAGE'],
+            error_out=False)
+    elif shows is not None and shows == 'concern':
+        pagination = current_user.concern_posts.order_by(Post.timestamp.desc()).paginate(
+            page, per_page=current_app.config['POSTS_PER_PAGE'],
+            error_out=False)
+    else:
+        pagination = Post.query.order_by(Post.timestamp.desc()).paginate(
+            page, per_page=current_app.config['POSTS_PER_PAGE'],
+            error_out=False)
     posts = pagination.items
-    return render_template('index.html', form=form, posts=posts, pagination=pagination)
+    return render_template('index.html', form=form, posts=posts, pagination=pagination, shows=shows)
 
 # 索引文章的链接
 @main.route('/post/<int:id>')
@@ -45,7 +55,7 @@ def edit(id):
         post.body = form.body.data
         db.session.add(post)
         flash(messages.post_update_ok)
-        return redirect(url_for('post', id=post.id))
+        return redirect(url_for('main.post', id=post.id))
     form.body.data = post.body
     return render_template('edit_post.html', form=form)
 
@@ -61,3 +71,23 @@ def delete(id):
     u = post.author
     db.session.delete(post)
     return redirect(url_for('user.profile', username=u.username))
+
+# 关注谋篇文章
+@main.route('/concern/<int:id>')
+@login_required
+def concern(id):
+    post = Post.query.get_or_404(id)
+    is_concern = request.args.get('action')
+    if is_concern == 'concern':
+        if current_user.concern(post):
+            flash(messages.concern_ok)
+        else:
+            flash(messages.concern_again_err)
+    elif is_concern == 'unconcern':
+        if current_user.unconcern(post):
+            flash(messages.unconcern_ok)
+        else:
+            flash(messages.unconcern_again_err)
+    else:
+        pass
+    return redirect(url_for('main.post', id=id))

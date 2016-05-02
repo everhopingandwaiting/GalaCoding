@@ -45,3 +45,12 @@ unfollow_youself_err = '你不能取消关注自己！'
 unfollow_again_err = '你已经取消关注过此人！'
 
 unfollow_ok = '取消关注成功！'
+
+concern_ok = '关注文章成功！'
+
+concern_again_err = '你已经关注过此文章！'
+
+unconcern_ok = '取消关注文章成功！'
+
+unconcern_again_err = '你已经取消关注过此文章！'
+
