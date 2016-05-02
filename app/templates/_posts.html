@@ -24,7 +24,7 @@
                     <a href="{{ url_for('main.post', id=post.id) }}">
                         <span class="label label-default">文章链接</span>
                     </a>
-                    {% if current_user == post.author or current_user.is_administrator() %}
+                    {% if current_user == post.author or current_user.can(Permission.MODERATE_ARTICLES) %}
                     <a href="{{ url_for('main.edit', id=post.id) }}">
                     <span class="label label-primary">编辑</span>
                     </a>

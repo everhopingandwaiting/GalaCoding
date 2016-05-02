@@ -1,8 +1,16 @@
 {% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+{% import "_macros.html" as macros %}
+
+{% block scripts %}
+{{ super() }}
+{{ pagedown.include_pagedown() }}
+{% endblock %}
 
 {% block title %}GalaCoding - 博客文章{% endblock %}
 
 {% block page_content %}
+<div>
     {% if current_user.is_authenticated %}
         {% if current_user.is_concerning(posts[0]) %}
         <a href="{{ url_for('main.concern', id=posts[0].id, action='unconcern') }}">
@@ -14,5 +22,16 @@
         </a>
         {% endif %}
     {% endif %}
-{% include '_posts.html' %}
+    {% include '_posts.html' %}
+    <h4 id="comments">用户评论</h4>
+    {% if current_user.can(Permission.COMMENT) %}
+    <div class="comment-form">
+        {{ wtf.quick_form(form) }}
+    </div>
+    {% endif %}
+    {% include '_comments.html' %}
+    <div class="pagination">
+        {{ macros.pagination_widget(pagination, 'main.index') }}
+    </div>
+</div>
 {% endblock %}

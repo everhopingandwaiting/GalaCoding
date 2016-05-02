@@ -5,7 +5,8 @@ index route.
 from flask import render_template, redirect, url_for, request, current_app, abort, flash
 from . import main
 from forms import PostForm
-from ..models import Permission, Post, Concern_posts
+from ..comment.forms import CommentForm
+from ..models import Permission, Post, Concern_posts, Comment
 from flask.ext.login import current_user, login_required
 from .. import db
 from .. import messages
@@ -37,10 +38,20 @@ def index():
     return render_template('index.html', form=form, posts=posts, pagination=pagination, shows=shows)
 
 # 索引文章的链接
-@main.route('/post/<int:id>')
+@main.route('/post/<int:id>', methods=['GET', 'POST'])
 def post(id):
     post = Post.query.get_or_404(id)
-    return render_template('post.html', posts=[post])
+    form = CommentForm()
+    if current_user.can(Permission.COMMENT) and form.validate_on_submit():
+        comment = Comment(author=current_user._get_current_object(), body=form.comment.data, post=post)
+        db.session.add(comment)
+        db.session.commit()
+    page = request.args.get('page', 1, type=int)
+    pagination = Comment.query.filter_by(post_id=post.id).order_by(Comment.timestamp.desc()).paginate(
+        page, per_page=current_app.config['COMMENTS_PER_PAGE'],
+        error_out=False)
+    comments = pagination.items
+    return render_template('post.html', form=form, posts=[post], comments=comments, pagination=pagination)
 
 # 编辑文章
 @main.route('/edit/<int:id>', methods=['GET', 'POST'])

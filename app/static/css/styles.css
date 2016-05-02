@@ -70,6 +70,9 @@ div.comment-content {
     margin-left: 48px;
     min-height: 48px;
 }
+div.comment-footer {
+    text-align: right;
+}
 div.comment-form {
     margin: 16px 0px 16px 32px;
 }

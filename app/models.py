@@ -42,6 +42,32 @@ class Concern_posts(db.Model):
     post_id = db.Column(db.Integer, db.ForeignKey('posts.id'), primary_key=True)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
 
+# 增加与博文多对一关系、与用户多对一关系的评论系统
+@addModel
+class Comment(db.Model):
+    __tablename__ = 'comments'
+    id = db.Column(db.Integer, primary_key=True)
+    post_id = db.Column(db.Integer, db.ForeignKey('posts.id'))
+    author_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+    agree_count = db.Column(db.Integer)
+    disagree_count = db.Column(db.Integer)
+    body = db.Column(db.Text)
+    body_html = db.Column(db.Text)
+
+    # 富文本转化
+    @staticmethod
+    def on_chaged_body(target, value, oldvalue, initiator):
+        allowed_tags = ['a', 'abbr', 'acronym', 'b', 'blockquote', 'code',
+                        'em', 'i', 'li', 'ol', 'pre', 'strong', 'ul',
+                        'h1', 'h2', 'h3', 'p']
+        target.body_html = bleach.linkify(bleach.clean(
+                        markdown(value, output_format='html'),
+                        tags=allowed_tags, strip=True))
+
+# 绑定SQLAlchemy的事件监听
+db.event.listen(Comment.body, 'set', Comment.on_chaged_body)
+
 # USer model
 @addModel
 class User(db.Model, UserMixin):
@@ -179,6 +205,8 @@ class User(db.Model, UserMixin):
     def is_concerning(self, post):
         return self.concerns.filter_by(post_id=post.id).first() is not None
 
+    # 添加评论的反向引用
+    comments = db.relationship('Comment', foreign_keys=[Comment.author_id], backref='author', lazy='dynamic')
 
     def __repr__(self):
         return '<User %r>' % self.username
@@ -258,6 +286,10 @@ class Post(db.Model):
 
     def is_concerned_by(self, user):
         return self.concern_users.filter_by(user_id=user.id).first() is not None
+
+
+    # 添加评论的反向引用
+    comments = db.relationship('Comment', foreign_keys=[Comment.post_id], backref='post', lazy='dynamic')
 
 # 绑定SQLAlchemy的事件监听
 db.event.listen(Post.body, 'set', Post.on_chaged_body)
