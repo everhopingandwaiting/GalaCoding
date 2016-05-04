@@ -30,25 +30,48 @@ def addModel(model):
 # 建立关注的关联模型
 class Follow(db.Model):
     __tablename__ = 'follows'
-    follower_id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True)
-    followed_id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True)
+    follower_id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True, index=True)
+    followed_id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True, index=True)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
 
 # 建立用户和关注着博客的多对多关系模型
 @addModel
 class Concern_posts(db.Model):
     __tablename__ = 'concern_posts'
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True)
-    post_id = db.Column(db.Integer, db.ForeignKey('posts.id'), primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True, index=True)
+    post_id = db.Column(db.Integer, db.ForeignKey('posts.id'), primary_key=True, index=True)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+
+# 评论主要是 对文章评论、对评论进行评论，这些都是文本式评论，还有一种是态度评论，比如赞同、反对等
+class Remark_Attitude:
+    AGREE_WITH = 0x01
+    DISAGREE_WITH = 0x02
+    # 扩展
+
+@addModel
+class Remark(db.Model):
+    __tablename__ = 'remarks'
+    id = db.Column(db.Integer, primary_key=True)
+    owner_id = db.Column(db.Integer, db.ForeignKey('users.id'), index=True)
+    comment_id = db.Column(db.Integer, db.ForeignKey('comments.id'), index=True)
+    attitude = db.Column(db.Integer)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+
+# 子评论表，用来表示对一篇文章的评论层级，层级不超过2
+@addModel
+class SubComment(db.Model):
+    __tablename__ = 'subcomment'
+    id = db.Column(db.Integer, primary_key=True, index=True)
+    for_comment_id = db.Column(db.Integer, db.ForeignKey('comments.id'), index=True)
+    from_comment_id = db.Column(db.Integer, db.ForeignKey('comments.id'), index=True)
 
 # 增加与博文多对一关系、与用户多对一关系的评论系统
 @addModel
 class Comment(db.Model):
     __tablename__ = 'comments'
-    id = db.Column(db.Integer, primary_key=True)
-    post_id = db.Column(db.Integer, db.ForeignKey('posts.id'))
-    author_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    id = db.Column(db.Integer, primary_key=True, index=True)
+    post_id = db.Column(db.Integer, db.ForeignKey('posts.id'), index=True)
+    author_id = db.Column(db.Integer, db.ForeignKey('users.id'), index=True)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
     agree_count = db.Column(db.Integer)
     disagree_count = db.Column(db.Integer)
@@ -64,6 +87,20 @@ class Comment(db.Model):
         target.body_html = bleach.linkify(bleach.clean(
                         markdown(value, output_format='html'),
                         tags=allowed_tags, strip=True))
+
+    # 子评论
+    subcomments = db.relationship('SubComment', foreign_keys=[SubComment.for_comment_id], backref=db.backref('comment', lazy='joined'),
+                               lazy='dynamic', cascade='all, delete-orphan')
+
+    def obtain_subcomments(self):
+        return Comment.query.join(SubComment, SubComment.for_comment_id==Comment.id).filter(SubComment.for_comment_id==self.id)
+
+    # 简评  态度评论
+    remarks = db.relationship('Remark', foreign_keys=[Remark.comment_id], backref=db.backref('comment', lazy='joined'),
+                               lazy='dynamic', cascade='all, delete-orphan')
+
+    def remark_count(self, type):
+        return Remark.query.filter_by(comment_id=self.id, attitude=type).count()
 
 # 绑定SQLAlchemy的事件监听
 db.event.listen(Comment.body, 'set', Comment.on_chaged_body)
@@ -208,6 +245,13 @@ class User(db.Model, UserMixin):
     # 添加评论的反向引用
     comments = db.relationship('Comment', foreign_keys=[Comment.author_id], backref='author', lazy='dynamic')
 
+    # 简评  态度评论
+    remarks = db.relationship('Remark', foreign_keys=[Remark.owner_id], backref=db.backref('owner', lazy='joined'),
+                               lazy='dynamic', cascade='all, delete-orphan')
+
+    def remark_count(self, type):
+        return Remark.query(owner_id=self.id, attitude=type).count()
+
     def __repr__(self):
         return '<User %r>' % self.username
 
@@ -235,8 +279,8 @@ class Permission:
 @addModel
 class Role(db.Model):
     __tablename__ = 'roles'
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(64), unique=True)
+    id = db.Column(db.Integer, primary_key=True, index=True)
+    name = db.Column(db.String(64), unique=True, index=True)
     default = db.Column(db.Boolean, default=False, index=True)
     permission = db.Column(db.Integer)
     users = db.RelationshipProperty('User', backref='role', lazy='dynamic')
@@ -263,10 +307,10 @@ class Role(db.Model):
 @addModel
 class Post(db.Model):
     __tablename__ = 'posts'
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True, index=True)
     body = db.Column(db.Text)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
-    author_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    author_id = db.Column(db.Integer, db.ForeignKey('users.id'), index=True)
     # 富文本
     body_html = db.Column(db.Text)
 

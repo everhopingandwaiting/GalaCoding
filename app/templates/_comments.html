@@ -18,10 +18,10 @@
             </div>
             <div class="comment-footer">
                 <a href="{# {{ url_for('comment.agree', id=comment.id) }} #}">
-                    <span class="label label-success">赞同</span>
+                    <span class="label label-success">赞同：</span><span class="badge">{{ comment.remark_count(Remark_Attitude.AGREE_WITH) }}</span>
                 </a>
                 <a href="{# {{ url_for('comment.disagree', id=comment.id) }} #}">
-                    <span class="label label-warning">反对</span>
+                    <span class="label label-warning">反对：</span><span class="badge">{{ comment.remark_count(Remark_Attitude.DISAGREE_WITH) }}</span>
                 </a>
                 {% if current_user == comment.post.author or current_user == comment.author or current_user.can(Permission.MODERATE_ARTICLES) %}
                     <a href="{{ url_for('comment.delete', id=comment.id, post_id=comment.post.id) }}">
@@ -31,5 +31,19 @@
             </div>
         </div>
     </li>
+    {% for subcomment in comment.subcomments %}
+    <li class="comment">
+        <div class="comment-content">
+            <div class="comment-body">
+                回复：<br/>
+                {% if subcomment.body_html %}
+                    {{ subcomment.body_html | safe }}
+                {% else %}
+                    {{ subcomment.body }}
+                {% endif %}
+            </div>
+        </div>
+    </li>
+    {% endfor %}
     {% endfor %}
 </ul>
