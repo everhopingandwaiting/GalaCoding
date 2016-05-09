@@ -57,7 +57,16 @@ class Remark(db.Model):
     attitude = db.Column(db.Integer)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
 
-# 子评论表，用来表示对一篇文章的评论层级，层级不超过2
+@addModel
+class RemarkPost(db.Model):
+    __tablename__ = 'remarkposts'
+    id = db.Column(db.Integer, primary_key=True)
+    owner_id = db.Column(db.Integer, db.ForeignKey('users.id'), index=True)
+    post_id = db.Column(db.Integer, db.ForeignKey('posts.id'), index=True)
+    attitude = db.Column(db.Integer)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+
+# 子评论表，用来表示对一篇文章的评论层级，层级不超过2，评论的自引用
 @addModel
 class SubComment(db.Model):
     __tablename__ = 'subcomment'
@@ -252,6 +261,13 @@ class User(db.Model, UserMixin):
     def remark_count(self, type):
         return Remark.query(owner_id=self.id, attitude=type).count()
 
+    # 简评  态度评论
+    remarkposts = db.relationship('RemarkPost', foreign_keys=[RemarkPost.owner_id], backref=db.backref('owner', lazy='joined'),
+                               lazy='dynamic', cascade='all, delete-orphan')
+
+    def remarkPost_count(self, type):
+        return RemarkPost.query(owner_id=self.id, attitude=type).count()
+
     def __repr__(self):
         return '<User %r>' % self.username
 
@@ -334,6 +350,19 @@ class Post(db.Model):
 
     # 添加评论的反向引用
     comments = db.relationship('Comment', foreign_keys=[Comment.post_id], backref='post', lazy='dynamic')
+
+    # 简评  态度评论
+    remarkposts = db.relationship('RemarkPost', foreign_keys=[RemarkPost.post_id], backref=db.backref('post', lazy='joined'),
+                               lazy='dynamic', cascade='all, delete-orphan')
+
+    def remarkPost_count(self, type):
+        return RemarkPost.query.filter_by(post_id=self.id, attitude=type).count()
+
+    viewed_count = db.Column(db.Integer)
+    tags = db.Column(db.String(128))
+
+    def getTagsList(self):
+        return self.tags.split(';')
 
 # 绑定SQLAlchemy的事件监听
 db.event.listen(Post.body, 'set', Post.on_chaged_body)

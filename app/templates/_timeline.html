@@ -1,0 +1,63 @@
+
+{% block body %}
+<div class="timeline-page">
+    <div class="row">
+        <div class="col-md-offset-3 col-md-9 col-xs-12">
+            <table class="col-xs-11">
+                <tr>
+                    <td>
+                        <div class="container-timeline">
+                            {% for post in posts %}
+                            <div class="post dis-none sticky" style="display: block;" >
+                                <div class="post-date">
+                                    <span>{{ moment(post.timestamp).fromNow() }}</span>
+                                </div>
+                                {% if current_user.can(Permission.MODERATE_USERS) %}
+                                <div class="menu btn-group pull-right">
+                                    <a class="dropdown-toggle" data-toggle="dropdown" href="">
+                                        <h4><i class="fa fa-toggle-down text-default"></i></h4>
+                                    </a>
+                                    <ul class="dropdown-menu">
+                                        <li><a class="menu-delete" href="javascript:;">删除</a></li>
+                                    </ul>
+                                </div>
+                                {% endif %}
+                                <span class=""><img src="{{ post.author.avatar_url_auto(size=40) }}" class="avatar avatar48"/></span>
+                                <span class="label label-default pull-left post-hide dis-none"></span>
+                                <span class="post-sticky dis-none" title="置顶"></span>
+                                <span class="post-title"><a class="title" href="{{ url_for('main.post', id=post.id) }}">{{ post.title }}</a></span>
+                                <ul class="tags">
+                                    {% for tag in post.getTagsList() %}
+                                    <a href="{{ url_for('user.profile', username=post.author.username) }}">{{ tag }}</a>
+                                    {% endfor %}
+                                </ul>
+                                <div class="post-body">
+                                    {% if post.body_html %}
+                                        {{ post.body_html | safe }}
+                                    {% else %}
+                                        {{ post.body }}
+                                    {% endif %}
+                                </div>
+                                <div class="thumbnails dis-none"></div>
+                                <div class="clearfix"></div>
+                                <a class="post-category" href=""><i class="icon-th-large icon-white"></i>{{ post.author.username }}</a>
+                                <div class="cmdbar">
+                                    <i class="fa fa-eye"></i> <span class="post-viewed">{{ post.viewed_count }}</span>
+                                    &nbsp;<a class="share" href="javascript:;" title="分享"><i class="fa fa-share"></i></a>
+                                    &nbsp;<a class="stats" stats_type="Post" name="like_count" oper="increase"
+                                       href="javascript:;" title="赞同"><i class="fa fa-thumbs-o-up"></i>{{ post.remarkPost_count(Remark_Attitude.AGREE_WITH) }}</a>
+                                    &nbsp;<a class="stats" stats_type="Post" name="unlike_count" oper="increase"
+                                       href="javascript:;" title="反对"><i class="fa fa-thumbs-o-down"></i>{{ post.remarkPost_count(Remark_Attitude.AGREE_WITH) }}</a>
+                                    &nbsp;<a class="comment" href="javascript:;" title="评论"><i class="fa fa-comment-o"></i>{{ post.comments.count() }}</a>
+                                </div>
+                                <div class="comments_panel dis-none"></div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
