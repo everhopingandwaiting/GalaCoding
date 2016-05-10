@@ -30,7 +30,7 @@
                                 <span class="post-title"><a class="title" href="{{ url_for('main.post', id=post.id) }}">{{ post.title }}</a></span>
                                 <ul class="tags">
                                     {% for tag in post.tags %}
-                                    <a href="{{ url_for('user.profile', username=post.author.username) }}">{{ tag.content }}</a>
+                                    <a href="{{ url_for('main.tags', tagname=tag.content) }}">{{ tag.content }}</a>
                                     {% endfor %}
                                 </ul>
                                 <div class="post-body">

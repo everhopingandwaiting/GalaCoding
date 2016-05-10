@@ -149,6 +149,18 @@ def remark(id):
         flash(messages.post_remark_again_err)
     return redirect(url_for('main.post', id=post.id))
 
+@main.route('/tags/<tagname>')
+def tags(tagname):
+    tag = Tag.query.filter_by(content=tagname).first()
+    if tag is None:
+        abort(404)
+    page = request.args.get('page', 1, type=int)
+    pagination = tag.posts.order_by(Post.timestamp.desc()).paginate(
+        page, per_page=current_app.config['POSTS_PER_PAGE'],
+        error_out=False)
+    posts = pagination.items
+    return render_template('index.html', posts=posts, pagination=pagination)
+
 # 获取热门标签
 @main.route('/json/tags/hot', methods=['GET', 'POST'])
 def tags_hot():

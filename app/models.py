@@ -422,6 +422,7 @@ class Post(db.Model):
     def update_tags(self, new_tags):
         old_tags = self.tags_txt.split(';')
         new_tags = new_tags.split(';')
+        # 建立新标签
         for tag in new_tags:
             # 检查标签是否有增删的情况
             if tag not in old_tags:
@@ -441,6 +442,14 @@ class Post(db.Model):
                         tTag.refer_count = tTag.refer_count - 1
                         db.session.delete(tPost_tag)
                     db.session.add(tTag)
+        # 删除就标签
+        for tag in old_tags:
+            if tag not in new_tags:
+                tTag = Tag.query.filter_by(content=tag).first()
+                tPost_tag = PostTag.query.filter_by(tag_id=tTag.id, post_id=self.id).first()
+                tTag.refer_count = tTag.refer_count - 1
+                db.session.delete(tPost_tag)
+                db.session.add(tTag)
 
     # 冗余信息
     tags_txt = db.Column(db.String(128))
