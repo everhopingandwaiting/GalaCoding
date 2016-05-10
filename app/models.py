@@ -432,15 +432,14 @@ class Post(db.Model):
                     db.session.add(tTag)
                     db.session.add(post_tag)
                 else:
-                    tPost_tag = PostTag.query.filter_by(tag_id=tTag.id, post_id=self.id)
+                    tPost_tag = PostTag.query.filter_by(tag_id=tTag.id, post_id=self.id).first()
                     if tPost_tag is None:
                         post_tag = PostTag(post=self, tag=tTag)
                         tTag.refer_count = tTag.refer_count + 1
                         db.session.add(post_tag)
                     else:
-                        post_tag = PostTag(post=self, tag=tTag)
                         tTag.refer_count = tTag.refer_count - 1
-                        db.session.delete(post_tag)
+                        db.session.delete(tPost_tag)
                     db.session.add(tTag)
 
     # 冗余信息

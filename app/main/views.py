@@ -68,9 +68,9 @@ def edit(id):
     if current_user.can(Permission.WRITE_ARTICLES) and form.validate_on_submit():
         post.body = form.body.data
         post.title = form.title.data
-        post.tags_txt = form.tags.data
         # 更新
         post.update_tags(form.tags.data)
+        post.tags_txt = form.tags.data
         post.timestamp = datetime.utcnow()
         db.session.add(post)
         flash(messages.post_update_ok)
@@ -102,6 +102,9 @@ def new():
         flash(messages.post_create_ok)
         db.session.commit()
         return redirect(url_for('main.index', shows='home'))
+    form.body.data = '#标题\r\n内容'
+    form.title.data = '输入博文名字'
+    form.tags.data = '标签通过;隔开。'
     return render_template('edit.html', form=form)
 
 # 编辑文章

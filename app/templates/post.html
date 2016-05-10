@@ -30,6 +30,7 @@
                 </a>
                 <ul class="dropdown-menu">
                     <li><a class="menu-delete" href="{{ url_for('main.delete', id=post.id) }}">删除</a></li>
+                    <li><a class="menu-update" href="{{ url_for('main.edit', id=post.id) }}">修改</a></li>
                 </ul>
             </div>
             {% endif %}

@@ -7,6 +7,7 @@ from wtforms import StringField, PasswordField, BooleanField, SubmitField, TextA
 from wtforms.validators import Required, Length, Email, Regexp, EqualTo, ValidationError
 from ..models import Post
 from flask.ext.pagedown.fields import PageDownField
+import re
 
 class PostForm(Form):
     title = StringField('博文标题', validators=[Required(), Length(0, 120)])
@@ -15,6 +16,10 @@ class PostForm(Form):
     submit = SubmitField('提交')
 
     def validate_tags(self, filed):
+        regx = r'^[0-9a-zA-Z;\u4E00-\u9FA5]*$'
+        pattern = re.compile(regx, re.S)
+        if pattern.match(filed.data) == None:
+            raise ValidationError('标签栏只包含英文单词、汉子和半角；。')
         tag_list = filed.data.split(';')
         for tag in tag_list:
             if len(tag) > 10:
