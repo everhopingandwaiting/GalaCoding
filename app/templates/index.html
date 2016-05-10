@@ -1,42 +1,25 @@
 {% extends "base.html" %}
-{% import "bootstrap/wtf.html" as wtf %}
 {% import "_macros.html" as macros %}
 
-{% block scripts %}
-{{ super() }}
-{{ pagedown.include_pagedown() }}
+{% block header %}
 {% endblock %}
 
-{% block title %}GalaCoding{% endblock %}
+{% block title %}
+GalaCoding - 广场
+{% endblock %}
+
+{% block css %}
+<link href="{{ mirror_site }}/static/assets/google-code-prettify/desert.css" rel="stylesheet"/>
+{% endblock %}
+
+{% block script %}
+<script type="text/javascript" src="{{ mirror_site }}/static/assets/google-code-prettify/prettify.js"></script>
+{% endblock %}
 
 {% block page_content %}
-<div class="page-header">
-    <h1>
-        你好,
-        {% if current_user.is_authenticated %}
-            {{ current_user.username }}!
-        {% else %}
-            陌生人!
-        {% endif %}
-    </h1>
-</div>
-<div>
-    {% if current_user.can(Permission.WRITE_ARTICLES) %}
-    {{ wtf.quick_form(form) }}
-    {% endif %}
-    <h2>博客动态：</h2>
-    <div class="post-tabs">
-        <ul class="nav nav-tabs">
-            <li {% if shows == "all" or not shows %} class="active" {% endif %}><a href="{{ url_for('main.index', shows='all') }}">广场</a></li>
-            {% if current_user.is_authenticated %}
-            <li {% if shows == "recommend" %} class="active" {% endif %}><a href="{{ url_for('main.index', shows='recommend') }}">推荐</a></li>
-            <li {% if shows == "concern" %} class="active" {% endif %}><a href="{{ url_for('main.index', shows='concern') }}">关注</a></li>
-            {% endif %}
-        </ul>
-        {% include '_posts.html' %}
-    </div>
+{% set template = "_timeline.html" %}
+{% include template %}
     <div class="pagination">
         {{ macros.pagination_widget(pagination, 'main.index') }}
     </div>
-</div>
 {% endblock %}

@@ -38,7 +38,8 @@ def register():
     if form.validate_on_submit():
         user = User(email=form.email.data,
                             username = form.username.data,
-                            password = form.password.data)
+                            password = form.password.data,
+                            role=Role.query.filter_by(name='User').first())
         # 新注册需要更新用户的 头像链接
         user.generate_avatar_url()
         db.session.add(user)
@@ -65,7 +66,7 @@ def confirm(token):
 
 @auth.before_app_request
 def before_request():
-    if current_user.is_authenticated:
+    if current_user is not None and current_user.is_authenticated:
         if not current_user.confirmed\
             and request.endpoint[:5] != 'auth.'\
             and request.endpoint != 'static':

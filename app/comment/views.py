@@ -33,3 +33,16 @@ def delete(id):
     db.session.delete(comment)
     return redirect(url_for('main.post', id=post_id))
 
+@comment.route('/remark/<int:id>')
+@login_required
+def remark(id):
+    comment = Comment.query.get_or_404(id)
+    post_id = int(request.args.get('post_id'))
+    attitude = int(request.args.get('attitude'))
+    if comment.post_id != post_id:
+        abort(404)
+    # 通过过滤条件
+    if False == comment.remark_it(attitude, current_user.id):
+        flash(messages.comment_remark_again_err)
+    return redirect(url_for('main.post', id=post_id))
+
