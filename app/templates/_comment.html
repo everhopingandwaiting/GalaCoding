@@ -1,3 +1,4 @@
+{% import "bootstrap/wtf.html" as wtf %}
 <div class="comment-box dis-none" style="display: block;">
     <div class="comment-title" title="Click to Collapse">
         <span class="comment-count">{{ post.comments.count() }}</span> 所有评论  <span class="caret"></span>
@@ -11,18 +12,18 @@
         {% for comment in post.comments %}
         <li class="dis-none thread" style="display: list-item;">
             <div class="command">
-                <i class="fa fa-user"></i> <span class="user_name"><a href="{{ url_for('user.profile', username=comment.user.username) }}">comment.user.username</a></span>
+                <i class="fa fa-user"></i> <span class="user_name"><a href="{{ url_for('user.profile', username=comment.author.username) }}">{{ comment.author.username }}</a></span>
                 <i class="fa fa-clock-o"></i> <abbr class="date timeago text-muted">{{ moment(comment.timestamp).fromNow() }}</abbr>
                 <div class="pull-right">
                     <a class="stats" stats_type="Comment" name="like_count" oper="increase"
-                        href="javascript:" title="赞同"><i class="fa fa-thumbs-o-up"></i>{{ comment.remark_count(Remark_Attitude.AGREE_WITH) }}
+                        href="{{ url_for('comment.remark', id=comment.id, post_id=comment.post.id, attitude=Remark_Attitude.AGREE_WITH) }}" title="赞同"><i class="fa fa-thumbs-o-up"></i>{{ comment.remark_count(Remark_Attitude.AGREE_WITH) }}
                     </a>&nbsp;
                     <a class="stats" stats_type="Comment" name="unlike_count" oper="increase"
-                        href="javascript:" title="反对"><i class="fa fa-thumbs-o-down"></i>{{ comment.remark_count(Remark_Attitude.DISAGREE_WITH) }}
+                        href="{{ url_for('comment.remark', id=comment.id, post_id=comment.post.id, attitude=Remark_Attitude.DISAGREE_WITH) }}" title="反对"><i class="fa fa-thumbs-o-down"></i>{{ comment.remark_count(Remark_Attitude.DISAGREE_WITH) }}
                     </a>&nbsp;
                     <a class="reply-comment" href="javascript:" title="回复"><i class="fa fa-reply"></i></a>&nbsp;
-                    {% if current_user.can(Permission.MODERATE_USERS) %}
-                    <a class="delete-comment" href="javascript:" title="删除"><i class="fa fa-trash-o"></i></a>&nbsp;
+                    {% if current_user.can(Permission.MODERATE_USERS) or comment.author == current_user%}
+                    <a class="delete-comment" href="{{ url_for('comment.delete', id=comment.id, post_id=comment.post.id) }}" title="删除"><i class="fa fa-trash-o"></i></a>&nbsp;
                     {% endif %}
                 </div>
             </div>

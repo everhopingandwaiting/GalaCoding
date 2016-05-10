@@ -11,15 +11,11 @@ from flask.ext.login import current_user, login_required
 from .. import db
 from .. import messages
 import json
+from datetime import datetime
 
 # 定义路由函数
 @main.route('/', methods=['GET', 'POST'])
 def index():
-    form = PostForm()
-    if current_user.can(Permission.WRITE_ARTICLES) and form.validate_on_submit():
-        post = Post(body=form.body.data, author=current_user._get_current_object())
-        db.session.add(post)
-        return redirect(url_for('main.index'))
     # 加载数据库所有文章
     page = request.args.get('page', 1, type=int)
     shows = request.args.get('shows')
@@ -40,15 +36,17 @@ def index():
             page, per_page=current_app.config['POSTS_PER_PAGE'],
             error_out=False)
     posts = pagination.items
-    return render_template('index.html', form=form, posts=posts, pagination=pagination, shows=shows)
+    return render_template('index.html', posts=posts, pagination=pagination, shows=shows)
 
 # 索引文章的链接
 @main.route('/post/<int:id>', methods=['GET', 'POST'])
 def post(id):
     post = Post.query.get_or_404(id)
+    post.viewed_count = post.viewed_count + 1
+    db.session.add(post)
     form = CommentForm()
     if current_user.can(Permission.COMMENT) and form.validate_on_submit():
-        comment = Comment(author=current_user._get_current_object(), body=form.comment.data, post=post)
+        comment = Comment(author=current_user._get_current_object(), body=form.comment.data, post=post, agree_count=0, disagree_count=0)
         db.session.add(comment)
         db.session.commit()
     page = request.args.get('page', 1, type=int)
@@ -56,7 +54,7 @@ def post(id):
         page, per_page=current_app.config['COMMENTS_PER_PAGE'],
         error_out=False)
     comments = pagination.items
-    return render_template('post.html', form=form, posts=[post], comments=comments, pagination=pagination)
+    return render_template('post.html', form=form, post=post, comments=comments, pagination=pagination)
 
 # 编辑文章
 @main.route('/edit/<int:id>', methods=['GET', 'POST'])
@@ -67,12 +65,19 @@ def edit(id):
         not current_user.can(Permission.ADMINISTER):
         abort(403)
     form = PostForm()
-    if form.validate_on_submit():
+    if current_user.can(Permission.WRITE_ARTICLES) and form.validate_on_submit():
         post.body = form.body.data
+        post.title = form.title.data
+        post.tags_txt = form.tags.data
+        # 更新
+        post.update_tags(form.tags.data)
+        post.timestamp = datetime.utcnow()
         db.session.add(post)
         flash(messages.post_update_ok)
         return redirect(url_for('main.post', id=post.id))
     form.body.data = post.body
+    form.title.data = post.title
+    form.tags.data = post.tags_txt
     return render_template('edit.html', form=form)
 
 
@@ -81,8 +86,8 @@ def edit(id):
 @login_required
 def new():
     form = PostForm()
-    if form.validate_on_submit():
-        post = Post(body=form.body.data, title=form.title.data, viewed_count=0, author=current_user)
+    if current_user.can(Permission.WRITE_ARTICLES) and form.validate_on_submit():
+        post = Post(body=form.body.data, title=form.title.data, viewed_count=0, author=current_user._get_current_object(), tags_txt=form.tags.data)
         db.session.add(post)
         tags = form.tags.data.split(';')
         for tag in tags:
@@ -108,7 +113,7 @@ def delete(id):
         not current_user.can(Permission.ADMINISTER):
         abort(403)
     u = post.author
-    db.session.delete(post)
+    Post.delete(post)
     return redirect(url_for('user.profile', username=u.username))
 
 # 关注谋篇文章

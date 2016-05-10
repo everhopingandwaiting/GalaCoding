@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% import "bootstrap/wtf.html" as wtf %}
+{% import "_macros.html" as macros %}
 
 {% block title %}GalaCoding - 博客页{% endblock %}
 
@@ -8,6 +9,8 @@
 {% endblock %}
 
 {% block script %}
+{{ super() }}
+{{ pagedown.include_pagedown() }}
     <script type="text/javascript" src="{{ mirror_site }}/static/assets/google-code-prettify/prettify.js"></script>
 {% endblock %}
 
@@ -32,8 +35,8 @@
             {% endif %}
             <div class="pull-right">
                 <div class="tags">
-                    {% for tag in post.getTagsList() %}
-                    <a href="{{ url_for('user.profile', username=post.author.username) }}">{{ tag }}</a>
+                    {% for tag in post.tags.all() %}
+                    <a href="{{ url_for('user.profile', username=post.author.username) }}">{{ tag.content }}</a>
                     {% endfor %}
                 </div>
             </div>
@@ -69,6 +72,9 @@
         </div>
         <div id="comments" class="">
             {% include "_comment.html" %}
+        </div>
+        <div class="pagination">
+            {{ macros.pagination_widget(pagination, 'main.index') }}
         </div>
     </div>
 

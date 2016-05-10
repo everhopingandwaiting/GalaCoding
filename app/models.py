@@ -84,8 +84,8 @@ class Comment(db.Model):
     post_id = db.Column(db.Integer, db.ForeignKey('posts.id'), index=True)
     author_id = db.Column(db.Integer, db.ForeignKey('users.id'), index=True)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
-    agree_count = db.Column(db.Integer)
-    disagree_count = db.Column(db.Integer)
+    agree_count = db.Column(db.Integer, default=0)
+    disagree_count = db.Column(db.Integer, default=0)
     body = db.Column(db.Text)
     body_html = db.Column(db.Text)
 
@@ -111,7 +111,28 @@ class Comment(db.Model):
                                lazy='dynamic', cascade='all, delete-orphan')
 
     def remark_count(self, type):
-        return Remark.query.filter_by(comment_id=self.id, attitude=type).count()
+        # return Remark.query.filter_by(comment_id=self.id, attitude=type).count()
+        if Remark_Attitude.AGREE_WITH == type:
+            return self.agree_count
+        elif Remark_Attitude.DISAGREE_WITH == type:
+            return self.disagree_count
+        else:
+            return 0
+
+    def remark_it(self, type, user_id):
+        remark = Remark.query.filter_by(comment_id=self.id, owner_id=user_id).first()
+        if remark is not None:
+            return False
+        if Remark_Attitude.AGREE_WITH == type or Remark_Attitude.DISAGREE_WITH == type:
+            remark = Remark(comment_id=self.id, owner_id=user_id, attitude=type)
+            db.session.add(remark)
+            if Remark_Attitude.AGREE_WITH == type:
+                self.agree_count = self.agree_count + 1
+            else:
+                self.disagree_count = self.disagree_count + 1
+            return True
+        else:
+            return False
 
 # 绑定SQLAlchemy的事件监听
 db.event.listen(Comment.body, 'set', Comment.on_chaged_body)
@@ -270,6 +291,16 @@ class User(db.Model, UserMixin):
     def remarkPost_count(self, type):
         return RemarkPost.query(owner_id=self.id, attitude=type).count()
 
+    @staticmethod
+    def delete(user):
+        # 删除用户的评论
+        for comment in user.comments:
+            db.session.delete(comment)
+        # 删除用户的文章
+        for post in user.posts:
+            Post.delete(post)
+        db.session.delete(user)
+
     def __repr__(self):
         return '<User %r>' % self.username
 
@@ -334,7 +365,7 @@ class Tag(db.Model):
     __tablename__ = 'tags'
     id = db.Column(db.Integer, primary_key=True, index=True)
     content = db.Column(db.String(10))
-    refer_count = db.Column(db.Integer)
+    refer_count = db.Column(db.Integer, default=0)
     posttags = db.relationship('PostTag', foreign_keys=[PostTag.tag_id], backref=db.backref('tag', lazy='joined'),
                                lazy='dynamic', cascade='all, delete-orphan')
 
@@ -388,7 +419,78 @@ class Post(db.Model):
     def tags(self):
         return Tag.query.join(PostTag, PostTag.tag_id==Tag.id).filter(PostTag.post_id==self.id)
 
+    def update_tags(self, new_tags):
+        old_tags = self.tags_txt.split(';')
+        new_tags = new_tags.split(';')
+        for tag in new_tags:
+            # 检查标签是否有增删的情况
+            if tag not in old_tags:
+                tTag = Tag.query.filter_by(content=tag).first()
+                if tTag is None:
+                    tTag = Tag(content=tag, refer_count=1)
+                    post_tag = PostTag(post=self, tag=tTag)
+                    db.session.add(tTag)
+                    db.session.add(post_tag)
+                else:
+                    tPost_tag = PostTag.query.filter_by(tag_id=tTag.id, post_id=self.id)
+                    if tPost_tag is None:
+                        post_tag = PostTag(post=self, tag=tTag)
+                        tTag.refer_count = tTag.refer_count + 1
+                        db.session.add(post_tag)
+                    else:
+                        post_tag = PostTag(post=self, tag=tTag)
+                        tTag.refer_count = tTag.refer_count - 1
+                        db.session.delete(post_tag)
+                    db.session.add(tTag)
+
+    # 冗余信息
+    tags_txt = db.Column(db.String(128))
+    agree_count = db.Column(db.Integer, default=0)
+    disagree_count = db.Column(db.Integer, default=0)
+
     title = db.Column(db.String(128))
+
+    def remark_count(self, type):
+        # return Remark.query.filter_by(comment_id=self.id, attitude=type).count()
+        if Remark_Attitude.AGREE_WITH == type:
+            return self.agree_count
+        elif Remark_Attitude.DISAGREE_WITH == type:
+            return self.disagree_count
+        else:
+            return 0
+
+    def remark_it(self, type, user_id):
+        remark = RemarkPost.query.filter_by(post_id=self.id, owner_id=user_id).first()
+        if remark is not None:
+            return False
+        if Remark_Attitude.AGREE_WITH == type or Remark_Attitude.DISAGREE_WITH == type:
+            remark = RemarkPost(post_id=self.id, owner_id=user_id, attitude=type)
+            db.session.add(remark)
+            if Remark_Attitude.AGREE_WITH == type:
+                self.agree_count = self.agree_count + 1
+            else:
+                self.disagree_count = self.disagree_count + 1
+            return True
+        else:
+            return False
+
+    @staticmethod
+    def delete(post):
+        # 删除所有的评论
+        for comment in post.comments:
+            db.session.delete(comment)
+        # 删除文章，不用管remark，因为是关联表在建立引用关系时，使用cascade='all, delete-orphan' 属性让sqlalchemy自动处理其关系
+        tags = post.tags_txt.split(';')
+        # 更新标签数量
+        for tag in tags:
+            tTag = Tag.query.filter_by(content=tag).first()
+            tTag.refer_count = tTag.refer_count - 1
+            db.session.add(tTag)
+        db.session.delete(post)
+
+    def __repr__(self):
+        return '<Post %r>' % self.title
+
 
 # 绑定SQLAlchemy的事件监听
 db.event.listen(Post.body, 'set', Post.on_chaged_body)

@@ -19,11 +19,11 @@
                                         <h4><i class="fa fa-toggle-down text-default"></i></h4>
                                     </a>
                                     <ul class="dropdown-menu">
-                                        <li><a class="menu-delete" href="javascript:;">删除</a></li>
+                                        <li><a class="menu-delete" href="{{ url_for('main.delete', id=post.id) }}">删除</a></li>
                                     </ul>
                                 </div>
                                 {% endif %}
-                                <span class=""><img src="{{ post.author.avatar_url_auto(size=40) }}" class="avatar avatar32"/></span>
+                                <span class=""><a href="{{ url_for('user.profile', username=post.author.username) }}"><img src="{{ post.author.avatar_url_auto(size=40) }}" class="avatar avatar32"/></a></span>
                                 <span class="label label-default pull-left post-hide dis-none"></span>
                                 <span class="post-sticky dis-none" title="置顶"></span>
                                 <span class="post-title"><a class="title" href="{{ url_for('main.post', id=post.id) }}">{{ post.title }}</a></span>
@@ -41,7 +41,7 @@
                                 </div>
                                 <div class="thumbnails dis-none"></div>
                                 <div class="clearfix"></div>
-                                <a class="post-category" href=""><i class="icon-th-large icon-white"></i>{{ post.author.username }}</a>
+                                <a class="post-category" href="{{ url_for('user.profile', username=post.author.username) }}"><i class="icon-th-large icon-white"></i>{{ post.author.username }}</a>
                                 <div class="cmdbar">
                                     <i class="fa fa-eye"></i> <span class="post-viewed">{{ post.viewed_count }}</span>
                                     &nbsp;<a class="share" href="javascript:;" title="分享"><i class="fa fa-share"></i></a>
