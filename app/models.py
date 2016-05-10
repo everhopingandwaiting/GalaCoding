@@ -28,6 +28,7 @@ def addModel(model):
     return model
 
 # 建立关注的关联模型
+@addModel
 class Follow(db.Model):
     __tablename__ = 'follows'
     follower_id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True, index=True)
@@ -43,6 +44,7 @@ class Concern_posts(db.Model):
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
 
 # 评论主要是 对文章评论、对评论进行评论，这些都是文本式评论，还有一种是态度评论，比如赞同、反对等
+@addModel
 class Remark_Attitude:
     AGREE_WITH = 0x01
     DISAGREE_WITH = 0x02
@@ -321,6 +323,26 @@ class Role(db.Model):
         return '<Role %r>' % self.name
 
 @addModel
+class PostTag(db.Model):
+    __tablename__ = 'posttags'
+    id = db.Column(db.Integer, primary_key=True, index=True)
+    post_id = db.Column(db.Integer, db.ForeignKey('posts.id'), index=True)
+    tag_id = db.Column(db.Integer, db.ForeignKey('tags.id'), index=True)
+
+@addModel
+class Tag(db.Model):
+    __tablename__ = 'tags'
+    id = db.Column(db.Integer, primary_key=True, index=True)
+    content = db.Column(db.String(10))
+    refer_count = db.Column(db.Integer)
+    posttags = db.relationship('PostTag', foreign_keys=[PostTag.tag_id], backref=db.backref('tag', lazy='joined'),
+                               lazy='dynamic', cascade='all, delete-orphan')
+
+    @property
+    def posts(self):
+        return Post.query.join(PostTag, PostTag.post_id==Post.id).filter(PostTag.tag_id==self.id)
+
+@addModel
 class Post(db.Model):
     __tablename__ = 'posts'
     id = db.Column(db.Integer, primary_key=True, index=True)
@@ -359,10 +381,14 @@ class Post(db.Model):
         return RemarkPost.query.filter_by(post_id=self.id, attitude=type).count()
 
     viewed_count = db.Column(db.Integer)
-    tags = db.Column(db.String(128))
+    posttags = db.relationship('PostTag', foreign_keys=[PostTag.post_id], backref=db.backref('post', lazy='joined'),
+                               lazy='dynamic', cascade='all, delete-orphan')
 
-    def getTagsList(self):
-        return self.tags.split(';')
+    @property
+    def tags(self):
+        return Tag.query.join(PostTag, PostTag.tag_id==Tag.id).filter(PostTag.post_id==self.id)
+
+    title = db.Column(db.String(128))
 
 # 绑定SQLAlchemy的事件监听
 db.event.listen(Post.body, 'set', Post.on_chaged_body)

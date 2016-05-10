@@ -6,10 +6,11 @@ from flask import render_template, redirect, url_for, request, current_app, abor
 from . import main
 from forms import PostForm
 from ..comment.forms import CommentForm
-from ..models import Permission, Post, Concern_posts, Comment
+from ..models import Permission, Post, Concern_posts, Comment, Tag, PostTag
 from flask.ext.login import current_user, login_required
 from .. import db
 from .. import messages
+import json
 
 # 定义路由函数
 @main.route('/', methods=['GET', 'POST'])
@@ -22,12 +23,16 @@ def index():
     # 加载数据库所有文章
     page = request.args.get('page', 1, type=int)
     shows = request.args.get('shows')
-    if shows is not None and shows == 'recommend':
+    if current_user.is_authenticated and shows is not None and shows == 'recommend':
         pagination = current_user.recommend_posts.order_by(Post.timestamp.desc()).paginate(
             page, per_page=current_app.config['POSTS_PER_PAGE'],
             error_out=False)
-    elif shows is not None and shows == 'concern':
+    elif current_user.is_authenticated and shows is not None and shows == 'concern':
         pagination = current_user.concern_posts.order_by(Post.timestamp.desc()).paginate(
+            page, per_page=current_app.config['POSTS_PER_PAGE'],
+            error_out=False)
+    elif current_user.is_authenticated and shows is not None and shows == 'home':
+        pagination = current_user.posts.order_by(Post.timestamp.desc()).paginate(
             page, per_page=current_app.config['POSTS_PER_PAGE'],
             error_out=False)
     else:
@@ -68,8 +73,31 @@ def edit(id):
         flash(messages.post_update_ok)
         return redirect(url_for('main.post', id=post.id))
     form.body.data = post.body
-    return render_template('edit_post.html', form=form)
+    return render_template('edit.html', form=form)
 
+
+# 编辑文章
+@main.route('/new', methods=['GET', 'POST'])
+@login_required
+def new():
+    form = PostForm()
+    if form.validate_on_submit():
+        post = Post(body=form.body.data, title=form.title.data, viewed_count=0, author=current_user)
+        db.session.add(post)
+        tags = form.tags.data.split(';')
+        for tag in tags:
+            ttag = Tag.query.filter_by(content=tag).first()
+            if ttag is not None:
+                ttag.refer_count = ttag.refer_count + 1
+            else:
+                ttag = Tag(content=tag, refer_count=1)
+            post_tag = PostTag(post=post, tag=ttag)
+            db.session.add(ttag)
+            db.session.add(post_tag)
+        flash(messages.post_create_ok)
+        db.session.commit()
+        return redirect(url_for('main.index', shows='home'))
+    return render_template('edit.html', form=form)
 
 # 编辑文章
 @main.route('/delete/<int:id>', methods=['GET'])
@@ -102,3 +130,17 @@ def concern(id):
     else:
         pass
     return redirect(url_for('main.post', id=id))
+
+# 获取热门标签
+@main.route('/json/tags/hot', methods=['GET', 'POST'])
+def tags_hot():
+    hots = Tag.query.order_by(Tag.refer_count).paginate(
+        1, per_page=current_app.config['TAGS_HOT_NUM'],
+        error_out=False).items
+    hots_json = []
+    for hot in hots:
+        tmp = dict(name=hot.content, post_count=hot.refer_count)
+        hots_json.append(tmp)
+    hots_json = json.dumps(hots_json)
+    rsp = dict(status='ok', err_code=10000)
+    return render_template('json/tags.json', rsp=rsp, hots_json=hots_json)

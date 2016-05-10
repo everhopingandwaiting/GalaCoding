@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block title %}GalaCoding - 新建文章{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+{{ pagedown.include_pagedown() }}
+{% endblock %}
+
+{% block page_content %}
+<h2>新建博文</h2><br/>
+<form action="" method="post" class="form" role="form">
+  <!--<div style="display:none;"><input id="csrf_token" name="csrf_token" type="hidden" value="1462806066##e1e0f3c19e8bda792f90247becde9c4fad3042a8"></div>-->
+    {{ form.csrf_token }}
+
+  <div class="form-group  required"><label class="control-label" for="title">博文标题</label>
+
+          <input class="form-control" id="title" name="title" required="" type="text" value="" style="width: 520px;">
+
+  </div>
+
+  <div class="form-group  required"><label class="control-label" for="tags">博文标签</label>
+
+          <input class="form-control" id="tags" name="tags" required="" type="text" value="" style="width: 520px;">
+
+  </div>
+
+  <div class="form-group  required"><label class="control-label" for="body">有什么好的想法？</label>
+    <div style="left: 0px; top: 170px; width: 1016px; height: 561px;">
+    <div class="flask-pagedown"><textarea class="form-control flask-pagedown-input" style="display: block; width: 487px; height: 561px; float: left;    background-color: #fff;" id="flask-pagedown-body" name="body" required=""></textarea></div>
+    <div class="flask-pagedown-preview" style="width: 519px; height: 561px; margin-left: 497px; background-color: #f6f6f6;" id="flask-pagedown-body-preview"></div>
+    </div>
+
+<script type="text/javascript">
+f = function() {
+    if (typeof flask_pagedown_converter === "undefined")
+        flask_pagedown_converter = Markdown.getSanitizingConverter().makeHtml;
+    var textarea = document.getElementById("flask-pagedown-body");
+    var preview = document.getElementById("flask-pagedown-body-preview");
+    textarea.onkeyup = function() { preview.innerHTML = flask_pagedown_converter(textarea.value); }
+    textarea.onkeyup.call(textarea);
+}
+if (document.readyState === 'complete')
+    f();
+else if (window.addEventListener)
+    window.addEventListener("load", f, false);
+else if (window.attachEvent)
+    window.attachEvent("onload", f);
+else
+    f();
+</script>
+
+  </div>
+
+    <input class="btn btn-default" id="submit" name="submit" type="submit" value="提交">
+
+</form>
+
+<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/pagedown/1.0/Markdown.Converter.min.js"></script>
+<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/pagedown/1.0/Markdown.Sanitizer.min.js"></script>
+{% endblock %}
