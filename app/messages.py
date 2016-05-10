@@ -36,6 +36,8 @@ post_update_ok = '博客内容已更新！'
 
 post_create_ok = '博文已更新！'
 
+post_remark_again_err = '你已经评论过了~'
+
 follow_youself_err = '你不能关注自己！'
 
 follow_again_err = '你已经关注过此人！'

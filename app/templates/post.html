@@ -29,7 +29,7 @@
                     <h4><i class="fa fa-toggle-down text-default"></i></h4>
                 </a>
                 <ul class="dropdown-menu">
-                    <li><a class="menu-delete" href="javascript:;">删除</a></li>
+                    <li><a class="menu-delete" href="{{ url_for('main.delete', id=post.id) }}">删除</a></li>
                 </ul>
             </div>
             {% endif %}
@@ -57,12 +57,15 @@
               <span class="cmdbar pull-right">
                 <i class="fa fa-user"></i> <span class="post-author">{{ post.author.username }}</span>&nbsp;
                 <i class="fa fa-eye"></i> <span class="post-viewed">{{ post.viewed_count }}</span>&nbsp;
-                <button class="stats btn btn-default btn-xs" stats_type="Post" name="like_count" oper="increase"
+                  <a href="{{ url_for('main.remark', id=post.id, attitude=Remark_Attitude.AGREE_WITH) }}">
+                      <button class="stats btn btn-default btn-xs" stats_type="Post" name="like_count" oper="increase"
                     title="赞同"><i class="fa fa-thumbs-o-up"></i>{{ post.remarkPost_count(Remark_Attitude.AGREE_WITH) }}
-                </button>
-                <button class="stats btn btn-default btn-xs" stats_type="Post" name="unlike_count" oper="increase"
-                    title="反对"><i class="fa fa-thumbs-o-down"></i>{{ post.remarkPost_count(Remark_Attitude.DISAGREE_WITH) }}
-                </button>
+                </button></a>
+                <a href="{{ url_for('main.remark', id=post.id, attitude=Remark_Attitude.DISAGREE_WITH) }}">
+                    <button class="stats btn btn-default btn-xs" stats_type="Post" name="unlike_count" oper="increase"
+                    title="反对"><i class="fa fa-thumbs-o-down"></i>
+                    {{ post.remarkPost_count(Remark_Attitude.DISAGREE_WITH) }}
+                </button></a>
                 <button class="comment btn btn-default btn-xs" title="{{ post.comments.count() }}">
                     <i class="fa fa-comment-o"></i>{{ post.comments.count() }}
                 </button>

@@ -136,6 +136,16 @@ def concern(id):
         pass
     return redirect(url_for('main.post', id=id))
 
+@main.route('/remark/<int:id>')
+@login_required
+def remark(id):
+    post = Post.query.get_or_404(id)
+    attitude = int(request.args.get('attitude'))
+    # 通过过滤条件
+    if False == post.remark_it(attitude, current_user.id):
+        flash(messages.post_remark_again_err)
+    return redirect(url_for('main.post', id=post.id))
+
 # 获取热门标签
 @main.route('/json/tags/hot', methods=['GET', 'POST'])
 def tags_hot():

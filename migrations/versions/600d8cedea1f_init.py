@@ -1,13 +1,13 @@
-"""inital
+"""init
 
-Revision ID: e2e08634f5c0
+Revision ID: 600d8cedea1f
 Revises: None
-Create Date: 2016-05-09 22:53:17.260000
+Create Date: 2016-05-10 22:51:06.954000
 
 """
 
 # revision identifiers, used by Alembic.
-revision = 'e2e08634f5c0'
+revision = '600d8cedea1f'
 down_revision = None
 
 from alembic import op
@@ -69,6 +69,9 @@ def upgrade():
     sa.Column('author_id', sa.Integer(), nullable=True),
     sa.Column('body_html', sa.Text(), nullable=True),
     sa.Column('viewed_count', sa.Integer(), nullable=True),
+    sa.Column('tags_txt', sa.String(length=128), nullable=True),
+    sa.Column('agree_count', sa.Integer(), nullable=True),
+    sa.Column('disagree_count', sa.Integer(), nullable=True),
     sa.Column('title', sa.String(length=128), nullable=True),
     sa.ForeignKeyConstraint(['author_id'], ['users.id'], ),
     sa.PrimaryKeyConstraint('id')
