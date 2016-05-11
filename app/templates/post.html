@@ -10,7 +10,7 @@
 <script type="text/javascript">
 	$(document).ready(function() {
         var preview = document.getElementById("flask-pagedown-body-preview");
-        preview.innerHTML = marked(preview.innerHTML);
+        preview.innerHTML = marked(document.getElementById("flask-pagedown-body").value);
 	});
 </script>
 {% endblock %}
@@ -45,7 +45,9 @@
           </div>
         </div>
         <div class="panel-body">
-            <div class="markdown" id="flask-pagedown-body-preview">{{ post.body }}</div>
+            <!--防止转义-->
+            <textarea id="flask-pagedown-body" style="display: none; ">{{ post.body | safe }}</textarea>
+            <div class="markdown" id="flask-pagedown-body-preview"></div>
         </div>
         <div class="panel-footer">
             <small>
@@ -53,10 +55,17 @@
               <span class="cmdbar pull-right">
                 <i class="fa fa-user"></i> <span class="post-author">{{ post.author.username }}</span>&nbsp;
                 <i class="fa fa-eye"></i> <span class="post-viewed">{{ post.viewed_count }}</span>&nbsp;
+                  {% if post.is_concerned_by(current_user) %}
+                  <a href="{{ url_for('main.concern', id=post.id, action='unconcern') }}">
+                      <button class="stats btn btn-default btn-xs" stats_type="Post" name="like_count" oper="decrease"
+                    title="取消关注"><i class="fa fa-heart-o"></i>{{ post.concern_users.count() }}
+                </button></a>
+                  {% else %}
                   <a href="{{ url_for('main.concern', id=post.id, action='concern') }}">
                       <button class="stats btn btn-default btn-xs" stats_type="Post" name="like_count" oper="increase"
                     title="关注"><i class="fa fa-heart"></i>{{ post.concern_users.count() }}
                 </button></a>
+                  {% endif %}
                   <a href="{{ url_for('main.remark', id=post.id, attitude=Remark_Attitude.AGREE_WITH) }}">
                       <button class="stats btn btn-default btn-xs" stats_type="Post" name="like_count" oper="increase"
                     title="赞同"><i class="fa fa-thumbs-o-up"></i>{{ post.remarkPost_count(Remark_Attitude.AGREE_WITH) }}

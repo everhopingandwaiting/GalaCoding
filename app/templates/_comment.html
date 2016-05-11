@@ -6,10 +6,7 @@
     <div class="comment-input">
 
     <form action="" method="post" class="form" role="form">
-        {{ form.csrf_token }}
-        <div class="form-group  required"><label class="control-label" for="comment">记录你的声音</label>
-            <div class="flask-pagedown"><textarea class="form-control flask-pagedown-input" id="flask-pagedown-comment" name="comment" required="" onkeydown="edit_tab(this)"></textarea></div>
-            <div class="markdown" id="flask-pagedown-comment-preview"></div>
+
             <script type="text/javascript">f = function() {
                 function edit_tab(obj){
                   if (event.keyCode == 9)
@@ -22,8 +19,8 @@
                     //flask_pagedown_converter = Markdown.getSanitizingConverter().makeHtml;
                     flask_pagedown_converter = marked;
                 }
-                var textarea = document.getElementById("flask-pagedown-comment");
-                var preview = document.getElementById("flask-pagedown-comment-preview");
+                var textarea = document.getElementById("flask-pagedown-post-comment");
+                var preview = document.getElementById("flask-pagedown-post-comment-preview");
                 textarea.onkeyup = function() { preview.innerHTML = flask_pagedown_converter(textarea.value); }
                 textarea.onkeyup.call(textarea);
                 }
@@ -36,6 +33,10 @@
                 else
                     f();
             </script>
+        {{ form.csrf_token }}
+        <div class="form-group  required"><label class="control-label" for="comment">记录你的声音</label>
+            <div class="flask-pagedown"><textarea class="form-control flask-pagedown-input" id="flask-pagedown-post-comment" name="comment" required="" onkeydown="edit_tab(this)"></textarea></div>
+            <div class="markdown" id="flask-pagedown-post-comment-preview"></div>
         </div>
 
         <input class="btn btn-default" id="submit" name="submit" type="submit" value="提交">
@@ -61,11 +62,19 @@
                     {% endif %}
                 </div>
             </div>
-            <div class="markdown" id="flask-pagedown-body-preview-comment">{{ comment.body }}</div>
+            <!--防止转义-->
+            <div id="repeat-item">
+            <textarea id="flask-pagedown-comment" style="display: none; ">{{ comment.body | safe }}</textarea>
+            <div class="markdown" id="flask-pagedown-comment-preview"></div></div>
             <script type="text/javascript">
-                $(document).ready(function() {
-                    var preview = document.getElementById("flask-pagedown-body-preview-comment");
-                    preview.innerHTML = marked(preview.innerHTML);
+                /*$(document).ready(function() {
+                    var preview = document.getElementById("flask-pagedown-comment-preview");
+                    preview.innerHTML = marked(document.getElementById("flask-pagedown-comment").value);
+                });*/
+                $(document).ready(function(){
+                    $("div[id=repeat-item]").each(function(){
+                        $(this).children('#flask-pagedown-comment-preview').get(0).innerHTML = marked( $(this).children("#flask-pagedown-comment").get(0).value);
+                    });
                 });
             </script>
         </li>

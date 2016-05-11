@@ -33,7 +33,11 @@
                                     <a href="{{ url_for('main.tags', tagname=tag.content) }}">{{ tag.content }}</a>
                                     {% endfor %}
                                 </ul>
-                                <div class="markdown" id="flask-pagedown-body-preview">{{ post.abstarct }}</div>
+                                <!--防止转义-->
+                                <div id="repeat-item">
+                                <textarea id="flask-pagedown-body" rows="3" cols="20" style="display: none; ">{{ post.abstarct | safe }}</textarea>
+                                <div class="markdown" id="flask-pagedown-body-preview"></div>
+                                </div>
                                 <div class="thumbnails dis-none"></div>
                                 <div class="clearfix"></div>
                                 <a class="post-category" href="{{ url_for('user.profile', username=post.author.username) }}"><i class="icon-th-large icon-white"></i>{{ post.author.username }}</a>
@@ -60,9 +64,20 @@
 </div>
 <script type="text/javascript" src="/static/js/marked.min.js"></script>
 <script type="text/javascript">
-	$(document).ready(function() {
-        var preview = document.getElementById("flask-pagedown-body-preview");
-        preview.innerHTML = marked(preview.innerHTML);
-	});
+	/*$(document).ready(function() {
+        $('[id=repeat-item]').each(function(index){
+            alert($(this));
+            alert($(this).children("#flask-pagedown-body"));
+            alert($(this).children('#flask-pagedown-body-preview'));
+            $(this).children('#flask-pagedown-body-preview').innerHTML = marked( $(this).children("#flask-pagedown-body").value);
+        });
+        //var preview = document.getElementById("flask-pagedown-body-preview");
+        //preview.innerHTML = marked(document.getElementById("flask-pagedown-body").value);
+	});*/
+    $(document).ready(function(){
+        $("div[id=repeat-item]").each(function(){
+            $(this).children('#flask-pagedown-body-preview').get(0).innerHTML = marked( $(this).children("#flask-pagedown-body").get(0).value);
+        });
+    });
 </script>
 {% endblock %}

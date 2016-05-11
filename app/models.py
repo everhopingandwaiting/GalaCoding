@@ -369,8 +369,10 @@ class Post(db.Model):
                     lazy='dynamic', cascade='all, delete-orphan')
 
     def is_concerned_by(self, user):
-        return self.concern_users.filter_by(user_id=user.id).first() is not None
-
+        try:
+            return self.concern_users.filter_by(user_id=user.id).first() is not None
+        except:
+            return False
 
     # 添加评论的反向引用
     comments = db.relationship('Comment', foreign_keys=[Comment.post_id], backref='post', lazy='dynamic')
