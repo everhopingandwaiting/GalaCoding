@@ -33,7 +33,7 @@
                                     <a href="{{ url_for('main.tags', tagname=tag.content) }}">{{ tag.content }}</a>
                                     {% endfor %}
                                 </ul>
-                                <div class="post-body">
+                                <div class="markdown">
                                     {% if post.body_html %}
                                         {{ post.body_html | safe }}
                                     {% else %}

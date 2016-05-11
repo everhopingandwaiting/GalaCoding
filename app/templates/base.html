@@ -18,11 +18,14 @@
     {% set mirror_site = '' %}
     <!-- CSS styles -->
     {% set theme = 'flatly' %}
-    {% set markdown_theme = 'github-markdown' %}
     <link href="{{ mirror_site }}/static/themes/{{ theme }}/bootstrap.min.css" rel="stylesheet"/>
     <link href="{{ mirror_site }}/static/assets/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet"/>
     <link href="/static/css/styles.css" rel="stylesheet"/>
-    <link href="/static/css/markdown/{{ markdown_theme }}.css" rel="stylesheet"/>
+    {#
+    {% set markdown_theme = 'haroopad' %}
+    <link href="/static/css/markdown/{{ markdown_theme }}/{{ markdown_theme }}.css" rel="stylesheet"/>
+    #}
+    <link href="/static/css/markdown/markdown.css" rel="stylesheet"/>
 
     <link href="{{ mirror_site }}/static/assets/bootstrap/lightbox/ekko-lightbox.css" rel="stylesheet"/>
     <link href="{{ mirror_site }}/static/assets/bootstrap/lightbox/dark.css" rel="stylesheet"/>
