@@ -1,11 +1,45 @@
-{% import "bootstrap/wtf.html" as wtf %}
 <div class="comment-box dis-none" style="display: block;">
     <div class="comment-title" title="Click to Collapse">
         <span class="comment-count">{{ post.comments.count() }}</span> 所有评论  <span class="caret"></span>
     </div>
     {% if current_user.is_authenticated %}
     <div class="comment-input">
-    {{ wtf.quick_form(form) }}
+
+    <form action="" method="post" class="form" role="form">
+        {{ form.csrf_token }}
+        <div class="form-group  required"><label class="control-label" for="comment">记录你的声音</label>
+            <div class="flask-pagedown"><textarea class="form-control flask-pagedown-input" id="flask-pagedown-comment" name="comment" required="" onkeydown="edit_tab(this)"></textarea></div>
+            <div class="markdown" id="flask-pagedown-comment-preview"></div>
+            <script type="text/javascript">f = function() {
+                function edit_tab(obj){
+                  if (event.keyCode == 9)
+                  {
+                     obj.value = obj.value + "    "; // 跳几格由你自已决定
+                     event.returnValue = false;
+                  }
+                }
+                if (typeof flask_pagedown_converter === "undefined") {
+                    //flask_pagedown_converter = Markdown.getSanitizingConverter().makeHtml;
+                    flask_pagedown_converter = marked;
+                }
+                var textarea = document.getElementById("flask-pagedown-comment");
+                var preview = document.getElementById("flask-pagedown-comment-preview");
+                textarea.onkeyup = function() { preview.innerHTML = flask_pagedown_converter(textarea.value); }
+                textarea.onkeyup.call(textarea);
+                }
+                if (document.readyState === 'complete')
+                    f();
+                else if (window.addEventListener)
+                    window.addEventListener("load", f, false);
+                else if (window.attachEvent)
+                    window.attachEvent("onload", f);
+                else
+                    f();
+            </script>
+        </div>
+
+        <input class="btn btn-default" id="submit" name="submit" type="submit" value="提交">
+    </form>
     </div>
     {% endif %}
     <ul class="threads" style="display: block;">
@@ -27,16 +61,15 @@
                     {% endif %}
                 </div>
             </div>
-            <div class="comment-content">
-                {% if comment.body_html %}
-                    {{ comment.body_html | safe }}
-                {% else %}
-                    {{ comment.body }}
-                {% endif %}
-            </div>
+            <div class="markdown" id="flask-pagedown-body-preview-comment">{{ comment.body }}</div>
+            <script type="text/javascript">
+                $(document).ready(function() {
+                    var preview = document.getElementById("flask-pagedown-body-preview-comment");
+                    preview.innerHTML = marked(preview.innerHTML);
+                });
+            </script>
         </li>
         {% endfor %}
     </ul>
 </div>
-<script type="text/javascript" src="{{ mirror_site }}/static/assets/bootstrap/jqBootstrapValidation.js"></script>
 

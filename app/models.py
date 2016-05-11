@@ -9,9 +9,6 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask.ext.login import UserMixin, AnonymousUserMixin
 from . import login_manager
 from datetime import datetime
-import hashlib
-from markdown import markdown
-import bleach
 
 # 使用flask-login模块自动加载用户信息
 @login_manager.user_loader
@@ -87,17 +84,6 @@ class Comment(db.Model):
     agree_count = db.Column(db.Integer, default=0)
     disagree_count = db.Column(db.Integer, default=0)
     body = db.Column(db.Text)
-    body_html = db.Column(db.Text)
-
-    # 富文本转化
-    @staticmethod
-    def on_chaged_body(target, value, oldvalue, initiator):
-        allowed_tags = ['a', 'abbr', 'acronym', 'b', 'blockquote', 'code',
-                        'em', 'i', 'li', 'ol', 'pre', 'strong', 'ul',
-                        'h1', 'h2', 'h3', 'h4', 'p', 'span']
-        target.body_html = bleach.linkify(bleach.clean(
-                        markdown(value, output_format='html'),
-                        tags=allowed_tags, strip=True))
 
     # 子评论
     subcomments = db.relationship('SubComment', foreign_keys=[SubComment.for_comment_id], backref=db.backref('comment', lazy='joined'),
@@ -133,9 +119,6 @@ class Comment(db.Model):
             return True
         else:
             return False
-
-# 绑定SQLAlchemy的事件监听
-db.event.listen(Comment.body, 'set', Comment.on_chaged_body)
 
 # USer model
 @addModel
@@ -380,18 +363,6 @@ class Post(db.Model):
     body = db.Column(db.Text)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
     author_id = db.Column(db.Integer, db.ForeignKey('users.id'), index=True)
-    # 富文本
-    body_html = db.Column(db.Text)
-
-    # 富文本转化
-    @staticmethod
-    def on_chaged_body(target, value, oldvalue, initiator):
-        allowed_tags = ['a', 'abbr', 'acronym', 'b', 'blockquote', 'code',
-                        'em', 'i', 'li', 'ol', 'pre', 'strong', 'ul',
-                        'h1', 'h2', 'h3', 'h4', 'p', 'span']
-        target.body_html = bleach.linkify(bleach.clean(
-                        markdown(value, output_format='html'),
-                        tags=allowed_tags, strip=True))
 
     #定义关注着文章的反向引用
     concern_users = db.relationship('Concern_posts', foreign_keys=[Concern_posts.post_id], backref=db.backref('post', lazy='joined'),
@@ -499,6 +470,3 @@ class Post(db.Model):
     def __repr__(self):
         return '<Post %r>' % self.title
 
-
-# 绑定SQLAlchemy的事件监听
-db.event.listen(Post.body, 'set', Post.on_chaged_body)

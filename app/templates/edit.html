@@ -42,9 +42,20 @@
             }
         </script>
     <div class="flask-pagedown"><textarea class="form-control flask-pagedown-input" style="display: block; width: 487px; height: 561px; float: left;    background-color: #fff;" id="flask-pagedown-body" name="body" required="" onkeydown="edit_tab(this)"  onscroll="edit_scroll(this)">{{ form.body.data }}</textarea></div>
-    <div class="markdown" style="overflow:scroll; width: 519px; height: 561px; margin-left: 497px;" id="flask-pagedown-body-preview"></div>
+    <div class="markdown" id="flask-pagedown-body-preview" style="overflow:scroll; width: 519px; height: 561px; margin-left: 497px;"></div>
     </div>
 
+
+  </div>
+
+    <input class="btn btn-default" id="submit" name="submit" type="submit" value="提交">
+
+</form>
+<!--
+<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/pagedown/1.0/Markdown.Converter.min.js"></script>
+<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/pagedown/1.0/Markdown.Sanitizer.min.js"></script>-->
+
+<script type="text/javascript" src="/static/js/marked.min.js"></script>
 <script type="text/javascript">
 f = function() {
     if (typeof flask_pagedown_converter === "undefined") {
@@ -65,14 +76,4 @@ else if (window.attachEvent)
 else
     f();
 </script>
-
-  </div>
-
-    <input class="btn btn-default" id="submit" name="submit" type="submit" value="提交">
-
-</form>
-<!--
-<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/pagedown/1.0/Markdown.Converter.min.js"></script>
-<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/pagedown/1.0/Markdown.Sanitizer.min.js"></script>-->
-<script type="text/javascript" src="/static/js/marked.min.js"></script>
 {% endblock %}

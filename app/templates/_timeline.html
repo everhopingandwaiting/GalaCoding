@@ -33,13 +33,7 @@
                                     <a href="{{ url_for('main.tags', tagname=tag.content) }}">{{ tag.content }}</a>
                                     {% endfor %}
                                 </ul>
-                                <div class="markdown">
-                                    {% if post.body_html %}
-                                        {{ post.body_html | safe }}
-                                    {% else %}
-                                        {{ post.body }}
-                                    {% endif %}
-                                </div>
+                                <div class="markdown" id="flask-pagedown-body-preview">{{ post.body }}</div>
                                 <div class="thumbnails dis-none"></div>
                                 <div class="clearfix"></div>
                                 <a class="post-category" href="{{ url_for('user.profile', username=post.author.username) }}"><i class="icon-th-large icon-white"></i>{{ post.author.username }}</a>
@@ -62,4 +56,11 @@
         </div>
     </div>
 </div>
+<script type="text/javascript" src="/static/js/marked.min.js"></script>
+<script type="text/javascript">
+	$(document).ready(function() {
+        var preview = document.getElementById("flask-pagedown-body-preview");
+        preview.innerHTML = marked(preview.innerHTML);
+	});
+</script>
 {% endblock %}

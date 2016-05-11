@@ -6,7 +6,13 @@
 
 {% block script %}
 {{ super() }}
-{{ pagedown.include_pagedown() }}
+<script type="text/javascript" src="/static/js/marked.min.js"></script>
+<script type="text/javascript">
+	$(document).ready(function() {
+        var preview = document.getElementById("flask-pagedown-body-preview");
+        preview.innerHTML = marked(preview.innerHTML);
+	});
+</script>
 {% endblock %}
 
 {% block page_content %}
@@ -39,13 +45,7 @@
           </div>
         </div>
         <div class="panel-body">
-            <div class="markdown">
-                {% if post.body_html %}
-                    {{ post.body_html | safe }}
-                {% else %}
-                    {{ post.body }}
-                {% endif %}
-            </div>
+            <div class="markdown" id="flask-pagedown-body-preview">{{ post.body }}</div>
         </div>
         <div class="panel-footer">
             <small>

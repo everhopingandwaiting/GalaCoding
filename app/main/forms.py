@@ -6,13 +6,12 @@ from flask.ext.wtf import Form
 from wtforms import StringField, PasswordField, BooleanField, SubmitField, TextAreaField, SelectField
 from wtforms.validators import Required, Length, Email, Regexp, EqualTo, ValidationError
 from ..models import Post
-from flask.ext.pagedown.fields import PageDownField
 import re
 
 class PostForm(Form):
     title = StringField('博文标题', validators=[Required(), Length(0, 120)])
     tags = StringField('博文标签', validators=[Required(), Length(0,120)])
-    body = PageDownField('有什么好的想法？', validators=[Required()])
+    body = TextAreaField('有什么好的想法？', validators=[Required()])
     submit = SubmitField('提交')
 
     def validate_tags(self, filed):
