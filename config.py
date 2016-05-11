@@ -37,6 +37,12 @@ class Config:
     MAIL_SUBJECT_PREFIX = '[GalaCoding]'
     MAIL_SENDER = 'GalaCoding Admin <%s>' % os.environ.get('MAIL_ADDR')
 
+    # 超级管理员信息
+    ADMIN_EMAIL = os.environ.get('ADMIN_EMAIL')
+    ADMIN_USERNAME = os.environ.get('ADMIN_USERNAME')
+    ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD')
+
+    # 常用常量
     POSTS_PER_PAGE = 30
     USERS_PER_PAGE = 30
     COMMENTS_PER_PAGE = 30

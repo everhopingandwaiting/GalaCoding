@@ -275,6 +275,29 @@ class User(db.Model, UserMixin):
         return RemarkPost.query(owner_id=self.id, attitude=type).count()
 
     @staticmethod
+    def insert_Administartor():
+        role = Role.query.filter_by(name='Administrator').first()
+        if role is None:
+            raise Exception('you should run Role.insert_roles()!!')
+        user = User(username=current_app.config['ADMIN_USERNAME'], email=current_app.config['ADMIN_EMAIL'], role=role, password=current_app.config['ADMIN_PASSWORD'])
+        user.generate_avatar_url()
+        db.session.add(user)
+        db.session.commit()
+
+    # 匿名用户很特殊，由于username、email、id等不会重复，所以只有一个属性那就是名字，主要用于匿名用户评论的，没有其他用途
+    @staticmethod
+    def insert_Anonymous():
+        role = Role.query.filter_by(name='User').first()
+        if role is None:
+            raise Exception('you should run Role.insert_roles()!!')
+        user = User(username='Anonymous', role=role)
+        db.session.add(user)
+        db.session.commit()
+
+    def is_anonymous(self):
+        return False
+
+    @staticmethod
     def delete(user):
         # 删除用户的评论
         for comment in user.comments:
@@ -287,13 +310,30 @@ class User(db.Model, UserMixin):
     def __repr__(self):
         return '<User %r>' % self.username
 
-# 为了保证一致性，添加一个匿名用户
+# 为了保证一致性，添加一个匿名用户，由于系统支持匿名用户评论，所以支持id和username属性，不支持别的属性会报错
 class AnonymousUser(AnonymousUserMixin):
+    @property
+    def id(self):
+        anonymous_user = User.query.filter_by(username='Anonymous').first()
+        if anonymous_user is None:
+            raise Exception('please run User.insert_Anonymous()!!!')
+        return anonymous_user.id
+
+    @property
+    def username(self):
+        anonymous_user = User.query.filter_by(username='Anonymous').first()
+        if anonymous_user is None:
+            raise Exception('please run User.insert_Anonymous()!!!')
+        return anonymous_user.username
+
     def can(self, permissions):
         return False
 
     def is_administrator(self):
         return False
+
+    def is_anonymous(self):
+        return True
 
 # 向flask-login管理添加默认的匿名类
 login_manager.anonymous_user = AnonymousUser
@@ -369,10 +409,8 @@ class Post(db.Model):
                     lazy='dynamic', cascade='all, delete-orphan')
 
     def is_concerned_by(self, user):
-        try:
-            return self.concern_users.filter_by(user_id=user.id).first() is not None
-        except:
-            return False
+        return self.concern_users.filter_by(user_id=user.id).first() is not None
+
 
     # 添加评论的反向引用
     comments = db.relationship('Comment', foreign_keys=[Comment.post_id], backref='post', lazy='dynamic')

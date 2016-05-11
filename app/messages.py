@@ -60,3 +60,5 @@ unconcern_again_err = '你已经取消关注过此文章！'
 
 comment_remark_again_err = '你已经评论过了~'
 
+comment_cannot_access = '你无权评论！'
+

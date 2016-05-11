@@ -45,10 +45,13 @@ def post(id):
     post.viewed_count = post.viewed_count + 1
     db.session.add(post)
     form = CommentForm()
-    if current_user.can(Permission.COMMENT) and form.validate_on_submit():
-        comment = Comment(author=current_user._get_current_object(), body=form.comment.data, post=post, agree_count=0, disagree_count=0)
-        db.session.add(comment)
-        db.session.commit()
+    if current_user.can(Permission.COMMENT):
+        flash(messages.comment_cannot_access)
+    else:
+        if form.validate_on_submit():
+            comment = Comment(author_id=current_user.id, body=form.comment.data, post=post, agree_count=0, disagree_count=0)
+            db.session.add(comment)
+            db.session.commit()
     page = request.args.get('page', 1, type=int)
     pagination = Comment.query.filter_by(post_id=post.id).order_by(Comment.timestamp.desc()).paginate(
         page, per_page=current_app.config['COMMENTS_PER_PAGE'],

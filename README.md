@@ -76,6 +76,13 @@ $python manage.py shell
 >>> db.session.commit()
 ```
 现在你只需要完成邮件验证就好了，当然这个你也可以通过后台数据库操作。
+还有为了支持匿名评论功能，需要主动的添加一个匿名用户，如果没有设置，系统会报异常来提示的。操作也很简单。
+```bash
+$python manage.py shell
+
+>>> User.insert_Anonymous()
+```
+这时就可以匿名评论了，实现匿名功能随后细聊，匿名用户比较特殊，只可以评论，同时也只有名字属性，其他属性为None。
 ###### 4.运行
 flask-script支持以下面命令启动应用。
 ```bash

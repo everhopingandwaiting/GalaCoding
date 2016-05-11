@@ -2,7 +2,6 @@
     <div class="comment-title" title="Click to Collapse">
         <span class="comment-count">{{ post.comments.count() }}</span> 所有评论  <span class="caret"></span>
     </div>
-    {% if current_user.is_authenticated %}
     <div class="comment-input">
 
     <form action="" method="post" class="form" role="form">
@@ -42,12 +41,15 @@
         <input class="btn btn-default" id="submit" name="submit" type="submit" value="提交">
     </form>
     </div>
-    {% endif %}
     <ul class="threads" style="display: block;">
         {% for comment in post.comments %}
         <li class="dis-none thread" style="display: list-item;">
             <div class="command">
+                {% if current_user.is_anonymous() %}
+                <i class="fa fa-user"></i> <span class="user_name"><a href="">{{ comment.author.username }}</a></span>
+                {% else %}
                 <i class="fa fa-user"></i> <span class="user_name"><a href="{{ url_for('user.profile', username=comment.author.username) }}">{{ comment.author.username }}</a></span>
+                {% endif %}
                 <i class="fa fa-clock-o"></i> <abbr class="date timeago text-muted">{{ moment(comment.timestamp).fromNow() }}</abbr>
                 <div class="pull-right">
                     <a class="stats" stats_type="Comment" name="like_count" oper="increase"
