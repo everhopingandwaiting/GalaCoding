@@ -33,7 +33,7 @@
                                     <a href="{{ url_for('main.tags', tagname=tag.content) }}">{{ tag.content }}</a>
                                     {% endfor %}
                                 </ul>
-                                <div class="markdown" id="flask-pagedown-body-preview">{{ post.body }}</div>
+                                <div class="markdown" id="flask-pagedown-body-preview">{{ post.abstarct }}</div>
                                 <div class="thumbnails dis-none"></div>
                                 <div class="clearfix"></div>
                                 <a class="post-category" href="{{ url_for('user.profile', username=post.author.username) }}"><i class="icon-th-large icon-white"></i>{{ post.author.username }}</a>

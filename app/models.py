@@ -467,6 +467,17 @@ class Post(db.Model):
             db.session.add(tTag)
         db.session.delete(post)
 
+    # 文章的摘要，默认取第一段落内容
+    @property
+    def abstarct(self):
+        end = self.body.find('##')
+        if end > -1 and end < current_app.config['POSTS_ABSTRACT_NUM']:
+            return self.body[:end]
+        end = self.body.find('```')
+        if end > -1 and end < current_app.config['POSTS_ABSTRACT_NUM']:
+            return self.body[:end]
+        return self.body[:current_app.config['POSTS_ABSTRACT_NUM']]
+
     def __repr__(self):
         return '<Post %r>' % self.title
 
