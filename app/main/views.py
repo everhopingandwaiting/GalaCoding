@@ -169,7 +169,7 @@ def tags(tagname):
 # 获取热门标签
 @main.route('/json/tags/hot', methods=['GET', 'POST'])
 def tags_hot():
-    hots = Tag.query.order_by(Tag.refer_count).paginate(
+    hots = Tag.query.order_by(Tag.refer_count.desc()).paginate(
         1, per_page=current_app.config['TAGS_HOT_NUM'],
         error_out=False).items
     hots_json = []

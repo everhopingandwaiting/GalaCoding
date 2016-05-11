@@ -41,6 +41,8 @@
                                     <i class="fa fa-eye"></i> <span class="post-viewed">{{ post.viewed_count }}</span>
                                     &nbsp;<a class="share" href="#" title="分享"><i class="fa fa-share"></i></a>
                                     &nbsp;<a class="stats" stats_type="Post" name="like_count" oper="increase"
+                                       href="#" title="关注"><i class="fa fa-heart"></i>{{ post.concern_users.count() }}</a>
+                                    &nbsp;<a class="stats" stats_type="Post" name="like_count" oper="increase"
                                        href="#" title="赞同"><i class="fa fa-thumbs-o-up"></i>{{ post.remarkPost_count(Remark_Attitude.AGREE_WITH) }}</a>
                                     &nbsp;<a class="stats" stats_type="Post" name="unlike_count" oper="increase"
                                        href="#" title="反对"><i class="fa fa-thumbs-o-down"></i>{{ post.remarkPost_count(Remark_Attitude.DISAGREE_WITH) }}</a>
