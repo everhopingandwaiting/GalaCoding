@@ -1,10 +1,11 @@
-#flask模板工程
+# flask模板工程
 
 最近在学习python，然后呢，python的用处还很多，原来计划搞机器学习和数据挖掘的，不幸.....看到python可以开发后端，一时技痒，就学习了，当时从网上找了很多资料，还有就是当时要参加比赛，所以肯定是越快上手越好，越小越好，后来选择了flask，现在静下心来看《FlaskWeb开发：基于Python的Web应用开发实战》一书，首先第一个开源项目，当然是构建一个flask的大型架构模板咯。现在让我一一道来。
 
 
 
-####一、启动
+#### 一、启动
+###### 1.安装环境
 
 如果使用这个模板很简单，首先你需要下载源码（这是当然的），然后安装python2.7环境，对于linux用户，python2.7是标配的，windows需要根据版本下载python安装程序就好了。下面给出ubuntu下的python安装。
 
@@ -35,8 +36,48 @@ export WEBSERVER_ACCESSIP=127.0.0.1
 #export DATABASE_URL=
 ```
 设置好后，可以直接运行**run.sh**进行测试（第八节），当然你也可以手动的把环境变量输入（这是必须的），然后直接运行manage.py脚本进行测试。
->最好的一个选择是，配置好run.sh下的环境变量，使用sudo执行，然后再进行下列命令，因为这时候系统已经保存有这些环境变量了。
+>最好的一个选择是，配置好run.sh下的环境变量，使用sudo执行，然后再进行下列命令，因为这时候系统已经保存有这些环境变量了。也可以把他们放在自己的bash.rc配置文件中。
 
+###### 2.数据库迁移
+使用flask-migrate后，数据库迁移变得so easy，同时本步骤是必须的，有可能你下载下来的**master**版本是已经生成数据库了，默认的是SQLLite，但是你可以把miratation文件夹和sqllite文件删除，来重新迁移数据库，也就是重新建表。
+
+迁移工程初始化，该步骤可以初始化一个迁移工程为后续做准备。
+```bash
+$python manage.py db init
+```
+初始化后，需要实行migrate指令，来生成迁移脚本，也就是说迁移工具自动生成配置数据库的脚本，该步骤必须显示调用。
+```bash
+$python manage.py db migrate -m "init version"
+```
+生成迁移脚本了，那么就开始正式迁移了，运行下面命令即可，如果没有数据库表，该命令会显式创建，同时运行迁移脚本，迁移数据库。
+```bash
+$python manage.py db upgrade
+```
+好了，现在数据库迁移完成了，可以进行下一步了。
+###### 3.启动前准备
+现在虽说基本建好环境了，但是对了本博客系统实现了简单的权限管理，所以必须显式的建立权限角色，否则会出现绑定角色失败，用户只能沦为无权限状态。不过新建角色也很简单。
+```bash
+$python manage.py shell
+
+>>> Role.insert_roles()
+>>> Role.query.all()
+[<Role u'Moderator'>, <Role u'Administrator'>, <Role u'User'>]
+>>>
+```
+还有就是建立一个初始的超级管理员，步骤如下：
+```bash
+$python manage.py shell
+
+>>> u = User(username='GalaIO', email='*****@**.com', role=Role.query.filter_by(name='Administrator').first(), password='***')
+>>> u.generate_avatar_url()
+>>> u
+<User 'GalaIO'>
+>>> db.session.add(u)
+>>> db.session.commit()
+```
+现在你只需要完成邮件验证就好了，当然这个你也可以通过后台数据库操作。
+###### 4.运行
+flask-script支持以下面命令启动应用。
 ```bash
 $python manage.py runserver
 ```
@@ -64,7 +105,7 @@ $python manage.py runserver -h 0.0.0.0 -p 8000
 $python manage.py runserver --help
 
 ```
-值得一提是，模板实现了一个默认命令，也就是说直接执行：
+值得一提是，本博客实现了一个默认命令，也就是说直接执行：
 ```bash
 $python manage.py
 ```
@@ -72,7 +113,7 @@ $python manage.py
 
 ####二、在shell环境中使用flask和数据库
 
-这个比较简单，在键入命令后，在后台模板会自动把app实例、sqlalchemy实例、数据库定义自动的加载到shell中，你可以在其中自由做测试，或者手动添加、修改数据库等。
+这个比较简单，在键入命令后，在后台模板会自动把app实例、sqlalchemy实例、数据库定义自动的加载到shell中，你可以在其中自由做测试，或者手动添加、修改数据库等。博客建立的所有模型，在这个交互环境中都有映射。
 
 ```bash
 
@@ -96,9 +137,10 @@ $python manage.py shell
 
 ####三、使用数据库迁移工具
 
-数据库迁移已经建立了一个基本版本，如果需要更新数据库模型，如果移动到新的部署环境，可以直接运行下面命令来同步数据库。
+数据库迁移已经建立了一个基本版本，如果需要更新数据库模型，如果移动到新的部署环境，可以直接运行下面命令来同步数据库。也就是说如果初次建立后，如果更新了数据库模型，那么你可以使用如下命令来更新数据库，一个是生成迁移脚本，一个执行升级功能，但是需要注意新增表和属性好办，如果删除了现有的表和属性，那么你得手动处理migrate命令生成的脚本是否正确。
 
 ```bash
+$python manage.py db migrate
 $python manage.py db upgrade
 ```
 

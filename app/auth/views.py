@@ -57,8 +57,6 @@ def confirm(token):
         return redirect(url_for('main.index'))
     if current_user.confirm(token):
         flash(messages.confirm_ok)
-        # 确认后 给用户添加权限
-        current_user.role = Role.query.filter_by(name='User').first()
         db.session.add(current_user)
     else:
         flash(messages.confirm_invalid)

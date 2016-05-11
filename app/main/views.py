@@ -86,7 +86,9 @@ def edit(id):
 @login_required
 def new():
     form = PostForm()
-    if current_user.can(Permission.WRITE_ARTICLES) and form.validate_on_submit():
+    if not current_user.can(Permission.WRITE_ARTICLES):
+        abort(403)
+    if form.validate_on_submit():
         post = Post(body=form.body.data, title=form.title.data, viewed_count=0, author=current_user._get_current_object(), tags_txt=form.tags.data)
         db.session.add(post)
         tags = form.tags.data.split(';')
