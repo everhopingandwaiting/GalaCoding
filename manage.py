@@ -56,7 +56,7 @@ def config():
     os.system('python manage.py db migrate')
     os.system('python manage.py db upgrade')
     # 执行角色更新
-    print 'insert Roles.....'
+    '''print 'insert Roles.....'
     Role.insert_roles()
     # 刷新用户信息，主要是一些自动填写的信息，比如头像等
     users = User.query.all()
@@ -64,7 +64,7 @@ def config():
     for user in users:
         user.generate_avatar_url()
         db.session.add(user)
-    db.session.commit()
+    db.session.commit()'''
     nginx_conf =\
 '''server {
     listen 80;
