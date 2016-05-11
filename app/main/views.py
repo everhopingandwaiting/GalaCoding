@@ -102,9 +102,12 @@ def new():
         flash(messages.post_create_ok)
         db.session.commit()
         return redirect(url_for('main.index', shows='home'))
-    form.body.data = '#标题\r\n内容'
-    form.title.data = '输入博文名字'
-    form.tags.data = '标签通过;隔开。'
+    if None == form.body.data:
+        form.body.data = '# 标题\n\n内容'
+    if None == form.title.data:
+        form.title.data = '输入博文名字'
+    if None == form.tags.data:
+        form.tags.data = '标签通过;隔开。'
     return render_template('edit.html', form=form)
 
 # 编辑文章
