@@ -33,13 +33,6 @@
     {% block css %}
     {% endblock %}
 
-    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
-    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
-    <!--[if lt IE 9]>
-      <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7/html5shiv.min.js"></script>
-      <script src="//cdnjs.cloudflare.com/ajax/libs/respond.js/1.4.2/respond.js"></script>
-    <![endif]-->
-
 <!-- Script -->
 <script src="//ajax.useso.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 <script>window.jQuery || document.write(unescape('%3Cscript src="{{ mirror_site }}/static/assets/jquery/jquery-1.11.1.min.js"%3E%3C/script%3E'))</script>
@@ -95,9 +88,24 @@ $(document).ready(function() {
     }).trigger("resize");
 });
 </script>
-{{ moment.include_moment() }}
+<script src="/static/assets/moment-with-locales.min.js"></script>
 <script type="application/javascript">
     moment.locale('zh-cn');
+function flask_moment_render(elem) {
+    $(elem).text(eval('moment("' + $(elem).data('timestamp') + '").' + $(elem).data('format') + ';'));
+    $(elem).removeClass('flask-moment').show();
+}
+function flask_moment_render_all() {
+    $('.flask-moment').each(function() {
+        flask_moment_render(this);
+        if ($(this).data('refresh')) {
+            (function(elem, interval) { setInterval(function() { flask_moment_render(elem) }, interval); })(this, $(this).data('refresh'));
+        }
+    })
+}
+$(document).ready(function() {
+    flask_moment_render_all();
+});
 </script>
 {% block script %}
 {% endblock %}

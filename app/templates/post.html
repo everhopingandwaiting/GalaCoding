@@ -4,14 +4,9 @@
 
 {% block title %}GalaCoding - 博客页{% endblock %}
 
-{% block css %}
-    <link href="{{ mirror_site }}/static/assets/google-code-prettify/desert.css" rel="stylesheet"/>
-{% endblock %}
-
 {% block script %}
 {{ super() }}
 {{ pagedown.include_pagedown() }}
-    <script type="text/javascript" src="{{ mirror_site }}/static/assets/google-code-prettify/prettify.js"></script>
 {% endblock %}
 
 {% block page_content %}
