@@ -256,7 +256,7 @@ $sudo /usr/sbin/nginx -s reload
 $sudo uwsgi -x ****-uwsgi.xml -d ./****.log
 ```
 这样就简单搭建了生产环境。
->值得一提：我们提供了run.sh和exit.sh的脚本，用于自动运行和退出。
+>值得一提：我们提供了run.sh和exit.sh的脚本，用于自动运行和退出。如果有必须，可以使用chmod命令来给run.sh、exit.sh添加执行权限。
 >
 
 ##### 九、添加新的库
