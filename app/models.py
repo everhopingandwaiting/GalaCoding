@@ -293,7 +293,7 @@ class User(db.Model, UserMixin):
         user = User(username='Anonymous', role=role)
         db.session.add(user)
         db.session.commit()
-
+    @property
     def is_anonymous(self):
         return False
 

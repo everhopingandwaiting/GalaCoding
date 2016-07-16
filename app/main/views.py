@@ -45,7 +45,7 @@ def post(id):
     post.viewed_count = post.viewed_count + 1
     db.session.add(post)
     form = CommentForm()
-    if current_user.can(Permission.COMMENT):
+    if not current_user.can(Permission.COMMENT):
         flash(messages.comment_cannot_access)
     else:
         if form.validate_on_submit():

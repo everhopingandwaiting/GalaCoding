@@ -45,7 +45,7 @@
         {% for comment in post.comments %}
         <li class="dis-none thread" style="display: list-item;">
             <div class="command">
-                {% if current_user.is_anonymous() %}
+                {% if current_user.is_anonymous %}
                 <i class="fa fa-user"></i> <span class="user_name"><a href="">{{ comment.author.username }}</a></span>
                 {% else %}
                 <i class="fa fa-user"></i> <span class="user_name"><a href="{{ url_for('user.profile', username=comment.author.username) }}">{{ comment.author.username }}</a></span>

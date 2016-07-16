@@ -45,7 +45,7 @@ def register():
         db.session.add(user)
         db.session.commit()
         token = user.generate_confirmation_token()
-        send_email(user.email, 'Confirm You Count', 'auth/email/confirm', user=user, token=token)
+        send_email(user.email, 'Please, Confirm Your Account', 'auth/email/confirm', user=user, token=token)
         flash(messages.send_register_confirm)
         return redirect(url_for('auth.login'))
     return render_template('auth/register.html', form=form)
@@ -75,7 +75,7 @@ def before_request():
 def unconfirmed():
     if current_user.is_anonymous or current_user.confirmed:
         return  redirect(url_for('main.index'))
-    return render_template('auth/unconfirmed.html')
+    return render_template('auth/unconfirmed.html'), 200
 
 @auth.route('/resend_confirm')
 @login_required
