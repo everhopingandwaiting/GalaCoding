@@ -31,11 +31,12 @@ class Config:
     # 注册发送邮件服务器
     MAIL_SERVER = os.environ.get('MAIL_SERVER')
     MAIL_PORT = int(os.environ.get('MAIL_SERVERPORT'))
-    MAIL_USE_TLS = True
+    # MAIL_USE_TLS = True
+    MAIL_USE_TLS = False
     MAIL_USERNAME = os.environ.get('MAIL_USERNAME')
     MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
     MAIL_SUBJECT_PREFIX = '[GalaCoding]'
-    MAIL_SENDER = 'GalaCoding Admin <%s>' % os.environ.get('MAIL_ADDR')
+    MAIL_SENDER = '%s <%s>' % (MAIL_USERNAME, os.environ.get('MAIL_ADDR'))
 
     # 超级管理员信息
     ADMIN_EMAIL = os.environ.get('ADMIN_EMAIL')
