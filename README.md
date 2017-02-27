@@ -287,6 +287,6 @@ $sudo uwsgi -x ****-uwsgi.xml -d ./****.log
 
 ```bash
 
-$pip freeze > requiremwnts.txt
+$pip freeze > requirements.txt
 
 ```
