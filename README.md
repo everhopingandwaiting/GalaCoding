@@ -28,7 +28,7 @@
 如果使用这个模板很简单，首先你需要下载源码（这是当然的），然后安装python2.7环境，对于linux用户，python2.7是标配的，windows需要根据版本下载python安装程序就好了。下面给出ubuntu下的python安装。
 
 ```bash
-$sudo apt-get install python
+$sudo apt-get install -y python python-pip
 ```
 然后需要安装依赖库，你也可以在虚拟环境中安装哦，这样更方便一点。
 ```bash
