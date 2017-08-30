@@ -4,7 +4,7 @@ index route.
 '''
 from flask import render_template, redirect, url_for, request, current_app, abort, flash
 from . import main
-from forms import PostForm
+from .forms import PostForm
 from ..comment.forms import CommentForm
 from ..models import Permission, Post, Concern_posts, Comment, Tag, PostTag
 from flask.ext.login import current_user, login_required

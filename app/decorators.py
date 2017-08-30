@@ -6,7 +6,7 @@ Some useful decorator
 from functools import wraps
 from flask import abort, redirect, url_for, render_template
 from flask.ext.login import current_user
-from models import Permission
+from .models import Permission
 
 # 检验权限，线检查权限，才能访问f行为
 def permission_required(permissions):

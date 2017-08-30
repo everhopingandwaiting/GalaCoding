@@ -38,7 +38,7 @@ def test():
 @manager.command
 def update():
     # 自动更新需求库
-    print 'output requirements file.....'
+    print ('output requirements file.....')
     os.system('pip freeze > requirements.txt')
 
 # 添加自动生成生产环境配置命令
@@ -100,13 +100,13 @@ def config():
     <buffer-size>16384</buffer-size>
     <pidfile>pids/uwsgi.pid</pidfile>
 </uwsgi>'''% (root_dir, Config.ACCESSIPS, Config.PORT, 4, 4)
-    print 'output nginx config file.....'
+    print ('output nginx config file.....')
     file = open(Config.HOST+'-nginx.conf', 'w')
     file.truncate()
     file.write(nginx_conf)
     file.close()
 
-    print 'output uwsgi config file.....'
+    print ('output uwsgi config file.....')
     file = open(Config.HOST+'-uwsgi.xml', 'w')
     file.truncate()
     file.write(uwsgi_conf)

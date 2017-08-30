@@ -2,17 +2,16 @@
 '''
 This config the root_dir, security key, database url....
 '''
-import sys
 import os
-
+import sys
 # 得到本工程的文件位置, 绝对地址
+from imp import reload
+
 root_dir = os.path.abspath(os.path.dirname(__file__))
 
-# 设置默认编码是utf-8
-reload(sys)
-sys.setdefaultencoding('utf-8')
-
-from flask import Flask
+# 设置默认编码是utf-8  pyuthon3  移除这个
+# reload(sys)
+# sys.setdefaultencoding('utf-8')
 
 
 # 核心设置，包括加密密钥和设置sqlalchemy自动提交
@@ -24,13 +23,13 @@ class Config:
     SQLALCHEMY_COMMIT_ON_TEARDOWN = True
 
     # 服务器绑定二级域名 端口 和过滤IP地址设置
-    HOST = os.environ.get('WEBSERVER_HOST')
-    PORT = int(os.environ.get('WEBSERVER_PORT'))
+    HOST = os.environ.get('WEBSERVER_HOST') or '127.0.0.1'
+    PORT = int(os.environ.get('WEBSERVER_PORT') or 5000)
     ACCESSIPS = os.environ.get('WEBSERVER_ACCESSIP')
 
     # 注册发送邮件服务器
     MAIL_SERVER = os.environ.get('MAIL_SERVER')
-    MAIL_PORT = int(os.environ.get('MAIL_SERVERPORT'))
+    MAIL_PORT = int(os.environ.get('MAIL_SERVERPORT') or 25)
     # MAIL_USE_TLS = True
     MAIL_USE_TLS = False
     MAIL_USERNAME = os.environ.get('MAIL_USERNAME')

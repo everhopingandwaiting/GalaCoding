@@ -4,7 +4,7 @@ index route.
 '''
 from flask import request, render_template, redirect, url_for, flash
 from . import auth
-from forms import LoginForm, RegistrationForm, ResetPassword, ForgetPassword, ResetPasswordByConfirm
+from .forms import LoginForm, RegistrationForm, ResetPassword, ForgetPassword, ResetPasswordByConfirm
 from ..models import User, Role
 from flask.ext.login import login_user, login_required, logout_user, current_user
 from .. import messages

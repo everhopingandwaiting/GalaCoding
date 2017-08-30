@@ -2,6 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/GalaCoding.iml" filepath="$PROJECT_DIR$/.idea/GalaCoding.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/flask_pro.iml" filepath="$PROJECT_DIR$/.idea/flask_pro.iml" />
     </modules>
   </component>
